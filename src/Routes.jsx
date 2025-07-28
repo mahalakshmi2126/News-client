@@ -1,0 +1,41 @@
+import React from "react";
+import { BrowserRouter, Routes as RouterRoutes, Route } from "react-router-dom";
+import ScrollToTop from "components/ScrollToTop";
+import ErrorBoundary from "components/ErrorBoundary";
+import UserAuthenticationLoginRegister from "pages/user-authentication-login-register";
+import ResetPasswordPage from './pages/user-authentication-login-register/ResetPasswordPage';
+import PersonalizedNewsDashboard from "pages/personalized-news-dashboard";
+// import NewsCategoriesSearch from "pages/news-categories-search";
+import BookmarksReadingHistory from "pages/bookmarks-reading-history";
+import UserProfileSettings from "pages/user-profile-settings";
+import ArticleReadingView from "pages/article-reading-view";
+import AdminDashboard from "pages/admin-dashboard";
+import ReporterDashboard from "pages/reporter-dashboard";
+import NotFound from "pages/NotFound";
+import OnboardingForm from "pages/personalized-news-dashboard/components/OnboardingForm";
+
+const Routes = () => {
+  return (
+    <BrowserRouter>
+      <ErrorBoundary>
+        <ScrollToTop />
+        <RouterRoutes>
+          <Route path="/" element={<PersonalizedNewsDashboard />} />
+          <Route path="/user-authentication-login-register" element={<UserAuthenticationLoginRegister />} />
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+          <Route path="/personalized-news-dashboard" element={<PersonalizedNewsDashboard />} />
+          <Route path="/personalized-news-dashboard/onboarding" element={<OnboardingForm />} />
+          {/* <Route path="/news-categories-search" element={<NewsCategoriesSearch />} /> */}
+          <Route path="/bookmarks-reading-history" element={<BookmarksReadingHistory />} />
+          <Route path="/user-profile-settings" element={<UserProfileSettings />} />
+          <Route path="/article-reading-view" element={<ArticleReadingView />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/reporter-dashboard" element={<ReporterDashboard />} />
+          <Route path="*" element={<NotFound />} />
+        </RouterRoutes>
+      </ErrorBoundary>
+    </BrowserRouter>
+  );
+};
+
+export default Routes;

@@ -1,0 +1,165 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Primary Colors */
+    --color-primary: #1a365d; /* Deep navy */
+    --color-primary-foreground: #ffffff; /* white */
+    
+    /* Secondary Colors */
+    --color-secondary: #4a5568; /* Warm gray */
+    --color-secondary-foreground: #ffffff; /* white */
+    
+    /* Accent Colors */
+    --color-accent: #3182ce; /* Professional blue */
+    --color-accent-foreground: #ffffff; /* white */
+    
+    /* Background Colors */
+    --color-background: #ffffff; /* Pure white */
+    --color-surface: #f7fafc; /* Subtle off-white */
+    
+    /* Text Colors */
+    --color-text-primary: #1a202c; /* Near-black */
+    --color-text-secondary: #4a5568; /* Medium gray */
+    
+    /* Status Colors */
+    --color-success: #38a169; /* Balanced green */
+    --color-success-foreground: #ffffff; /* white */
+    --color-warning: #d69e2e; /* Amber */
+    --color-warning-foreground: #ffffff; /* white */
+    --color-error: #e53e3e; /* Controlled red */
+    --color-error-foreground: #ffffff; /* white */
+    
+    /* Border Colors */
+    --color-border: rgba(0, 0, 0, 0.1); /* Minimal border */
+    --color-border-light: rgba(0, 0, 0, 0.05); /* Lighter border */
+    
+    /* Shadow Colors */
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1); /* Card shadows */
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1); /* Modal shadows */
+    
+    /* Animation */
+    --transition-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+    --duration-fast: 150ms;
+    --duration-normal: 200ms;
+    --duration-slow: 300ms;
+  }
+  
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-text-primary font-body;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+  }
+  
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  /* Focus styles */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Card elevation system */
+  .card-elevation-sm {
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .card-elevation-md {
+    box-shadow: var(--shadow-md);
+  }
+  
+  /* Micro-interactions */
+  .hover-scale {
+    transition: transform var(--duration-fast) var(--transition-smooth);
+  }
+  
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+  
+  /* Shimmer loading animation */
+  .shimmer {
+    background: linear-gradient(90deg, 
+      var(--color-surface) 25%, 
+      rgba(255, 255, 255, 0.5) 50%, 
+      var(--color-surface) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+  
+  /* Backdrop blur for floating elements */
+  .backdrop-blur-custom {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+}
+
+@layer utilities {
+  /* Dynamic spacing using clamp */
+  .space-dynamic-sm {
+    margin: clamp(0.5rem, 2vw, 1rem);
+  }
+  
+  .space-dynamic-md {
+    margin: clamp(1rem, 3vw, 1.5rem);
+  }
+  
+  .space-dynamic-lg {
+    margin: clamp(1.5rem, 4vw, 2rem);
+  }
+  
+  /* Text truncation utilities */
+  .text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .text-truncate-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
