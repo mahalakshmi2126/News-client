@@ -265,6 +265,8 @@ import RelatedArticlesCarousel from './components/RelatedArticlesCarousel';
 import CommentSection from './components/CommentSection';
 import DesktopSidebar from './components/DesktopSidebar';
 
+const URL = import.meta.env.VITE_API_BASE_URL;
+
 const ArticleReadingView = () => {
   const [searchParams] = useSearchParams();
   const articleId = searchParams.get('id');
@@ -282,7 +284,7 @@ const ArticleReadingView = () => {
   useEffect(() => {
     const fetchComments = async () => {
       try {
-        const res = await axios.get(`http://localhost:5000/api/comments/${articleId}`);
+        const res = await axios.get(`${URL}/comments/${articleId}`);
         setComments(res.data.comments || []);
       } catch (err) {
         console.error('Error fetching comments:', err);
@@ -303,7 +305,7 @@ const ArticleReadingView = () => {
 
       setIsLoading(true);
       try {
-        const articleResponse = await axios.get(`http://localhost:5000/api/news/news/${articleId}`);
+        const articleResponse = await axios.get(`${URL}/news/news/${articleId}`);
         const articleData = articleResponse.data;
 
         setArticle({
@@ -326,7 +328,7 @@ const ArticleReadingView = () => {
         });
         setIsBookmarked(articleData.isBookmarked || false);
 
-        const response = await axios.get('http://localhost:5000/api/news/public');
+        const response = await axios.get(`${URL}/news/public`);
         const fetchedArticles = await Promise.all(
           response.data
             .filter((item) => {
@@ -340,7 +342,7 @@ const ArticleReadingView = () => {
               if (typeof item.reporter === 'string') {
                 try {
                   const reporterResponse = await axios.get(
-                    `http://localhost:5000/api/reporters/${item.reporter}`
+                    `${URL}/reporters/${item.reporter}`
                   );
                   reporterName = reporterResponse.data.name || 'Unknown Author';
                 } catch (error) {
@@ -391,7 +393,7 @@ const ArticleReadingView = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.put(
-        `http://localhost:5000/api/news/news/${articleId}`,
+        `${URL}/news/news/${articleId}`,
         { isBookmarked: newBookmarkState },
         token ? { headers: { Authorization: `Bearer ${token}` } } : {}
       );
@@ -405,7 +407,7 @@ const ArticleReadingView = () => {
     try {
       const token = localStorage.getItem('authToken');
       await axios.patch(
-        `http://localhost:5000/api/news/news/${article.id}/share`,
+        `${URL}/news/news/${article.id}/share`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
