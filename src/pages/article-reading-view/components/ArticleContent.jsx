@@ -463,7 +463,7 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
       try {
         const token = localStorage.getItem('authToken');
         await axios.put(
-          `http://localhost:5000/api/news/news/${article.id}`,
+          `${URL}/news/news/${article.id}`,
           { likes: likes - 1, dislikes },
           token ? { headers: { Authorization: `Bearer ${token}` } } : {}
         );
@@ -482,7 +482,7 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
       try {
         const token = localStorage.getItem('authToken');
         await axios.put(
-          `http://localhost:5000/api/news/news/${article.id}`,
+          `${URL}/news/news/${article.id}`,
           updates,
           token ? { headers: { Authorization: `Bearer ${token}` } } : {}
         );
@@ -502,7 +502,7 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
       try {
         const token = localStorage.getItem('authToken');
         await axios.put(
-          `http://localhost:5000/api/news/news/${article.id}`,
+          `${URL}/news/news/${article.id}`,
           { likes, dislikes: dislikes - 1 },
           token ? { headers: { Authorization: `Bearer ${token}` } } : {}
         );
@@ -521,7 +521,7 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
       try {
         const token = localStorage.getItem('authToken');
         await axios.put(
-          `http://localhost:5000/api/news/news/${article.id}`,
+          `${URL}/news/news/${article.id}`,
           updates,
           token ? { headers: { Authorization: `Bearer ${token}` } } : {}
         );
@@ -549,7 +549,7 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
         return;
       }
       await axios.put(
-        `http://localhost:5000/api/news/news/${article.id}`,
+        `${URL}/news/news/${article.id}`,
         { isBookmarked: newBookmarkState },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -571,7 +571,7 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
     try {
       const token = localStorage.getItem('authToken');
       const res = await axios.post(
-        `http://localhost:5000/api/news/${article.id}/translate`,
+        `${URL}/news/${article.id}/translate`,
         { targetLang: lang },
         token ? { headers: { Authorization: `Bearer ${token}` } } : {}
       );
