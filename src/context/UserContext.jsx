@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useCallback, useContext } from 'react'; // Added useContext
 
 const UserContext = createContext();
-
+const URL = import.meta.env.VITE_API_BASE_URL;
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('authToken'));
@@ -14,7 +14,7 @@ export const UserProvider = ({ children }) => {
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/auth/me', {
+      const response = await fetch('${URL}/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
