@@ -232,6 +232,8 @@ import axios from 'axios';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
+const URL = import.meta.env.VITE_API_BASE_URL;
+
 const AdvancedSearchPanel = ({ isOpen, onClose, onApplyFilters, currentFilters }) => {
   const [filters, setFilters] = useState({
     dateRange: currentFilters.dateRange || 'all',
@@ -253,7 +255,7 @@ const AdvancedSearchPanel = ({ isOpen, onClose, onApplyFilters, currentFilters }
   useEffect(() => {
     const fetchFilters = async () => {
       try {
-        const res = await axios.get('/api/filter-options');
+        const res = await axios.get(`${URL}/filter-options`);
         setFilterOptions(res.data);
       } catch (err) {
         console.error('Failed to load filter options:', err);
