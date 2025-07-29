@@ -4,6 +4,7 @@ import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Icon from '../../../components/AppIcon';
 
+const URL = import.meta.env.VITE_API_BASE_URL;
 const LocationManagement = () => {
   const [districts, setDistricts] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
@@ -14,7 +15,7 @@ const LocationManagement = () => {
 
   const fetchDistricts = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/location/districts');
+      const res = await axios.get(`${URL}/location/districts`);
       setDistricts(res.data.districts);      
     } catch (err) {
       console.error('Error fetching districts', err);
@@ -28,7 +29,7 @@ const LocationManagement = () => {
   const handleAddDistrict = async () => {
     try {
       if (!newDistrict.name || !newDistrict.state) return;
-      await axios.post('http://localhost:5000/api/location/add/districts', newDistrict);
+      await axios.post(`{URL}/location/add/districts`, newDistrict);
       setNewDistrict({ name: '', state: '' });
       setIsAddingDistrict(false);
       fetchDistricts();
@@ -39,7 +40,7 @@ const LocationManagement = () => {
 
   const handleDeleteDistrict = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/location/add/districts/${id}`);
+      await axios.delete(`${URL}/location/add/districts/${id}`);
       if (selectedDistrict?._id === id) setSelectedDistrict(null);
       fetchDistricts();
     } catch (err) {
@@ -50,7 +51,7 @@ const LocationManagement = () => {
   const handleAddTaluk = async (districtId) => {
     try {
       if (!newTaluk.trim()) return;
-      await axios.post(`http://localhost:5000/api/location/districts/${districtId}/taluks`, { taluk: newTaluk });
+      await axios.post(`${URL}/location/districts/${districtId}/taluks`, { taluk: newTaluk });
       setNewTaluk('');
       setIsAddingTaluk(false);
       fetchDistricts();
@@ -61,7 +62,7 @@ const LocationManagement = () => {
 
   const handleDeleteTaluk = async (districtId, talukName) => {
     try {
-      await axios.delete(`http://localhost:5000/api/location/districts/${districtId}/taluks/${talukName}`);
+      await axios.delete(`${URL}/location/districts/${districtId}/taluks/${talukName}`);
       fetchDistricts();
     } catch (err) {
       alert('Failed to delete taluk');
