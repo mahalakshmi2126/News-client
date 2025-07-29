@@ -33,21 +33,30 @@ const handleBookmark = async (e) => {
 
   const newBookmarkState = !isBookmarked;
   setIsBookmarked(newBookmarkState);
-  onBookmark?.(article.id, newBookmarkState);
 
   try {
     const token = localStorage.getItem('authToken');
-    await axios.post(
-  `${URL}/bookmark/${article.id}`,
-  {},
-  { headers: { Authorization: `Bearer ${token}` } }
-);
+    if (!token) {
+      setIsBookmarked(!newBookmarkState);
+      toast.error('Please sign in to bookmark articles');
+      return;
+    }
 
+    await axios.put(
+      `${URL}/news/news/${article.id}`,
+      { isBookmarked: newBookmarkState },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    onBookmark?.(article.id, newBookmarkState);
+    toast.success(newBookmarkState ? 'Article bookmarked!' : 'Bookmark removed.');
   } catch (error) {
-    toast.error('Failed to update bookmark');
+    console.error('Bookmark error:', error.response?.status, error.response?.data);
     setIsBookmarked(!newBookmarkState);
+    toast.error('Failed to update bookmark');
   }
 };
+
 
 
 
