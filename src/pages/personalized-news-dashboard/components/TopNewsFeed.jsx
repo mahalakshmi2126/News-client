@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Icon from '../../../components/AppIcon';
-
+const URL = import.meta.env.VITE_API_BASE_URL;
 const TopNewsFeed = ({ refreshTrigger }) => {
   const [topArticles, setTopArticles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -55,7 +55,7 @@ const TopNewsFeed = ({ refreshTrigger }) => {
       try {
         const token = localStorage.getItem('authToken');
         const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
-        const response = await axios.get('http://localhost:5000/api/external-apis/top-news', config);
+        const response = await axios.get(`${URL}/external-apis/top-news`, config);
 
         if (!response.data?.success || !Array.isArray(response.data.data)) {
           throw new Error('Invalid API response: expected success and data array');
