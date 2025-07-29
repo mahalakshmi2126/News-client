@@ -343,6 +343,7 @@ import axios from 'axios';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Icon from '../../../components/AppIcon';
+const URL = import.meta.env.VITE_API_BASE_URL;
 
 const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
   const [formData, setFormData] = useState({
@@ -415,7 +416,7 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
         return;
       }
       const res = await axios.post(
-        'http://localhost:5000/api/user/reporter-request',
+        `${URL}/user/reporter-request`,
         {
           name: formData.name,
           location: formData.location,
