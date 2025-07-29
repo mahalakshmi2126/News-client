@@ -10,7 +10,7 @@ import Analytics from './components/Analytics';
 import ReporterRequests from './components/ReporterRequests';
 import { toast } from 'react-toastify';
 
-const API_BASE_URL = 'http://localhost:5000';
+const URL = import.meta.env.VITE_API_BASE_URL;
 
 const AdminDashboard = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -66,13 +66,13 @@ const AdminDashboard = () => {
       setIsLoading(true);
       try {
         const [newsRes, reportersRes, requestsRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/api/news/all`, {
+          axios.get(`${URL}/news/all`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`${API_BASE_URL}/api/news/reporters`, {
+          axios.get(`${URL}/news/reporters`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`${API_BASE_URL}/api/news/pending-requests`, {
+          axios.get(`${URL}/news/pending-requests`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -100,7 +100,7 @@ const AdminDashboard = () => {
   const handleLogin = async (credentials) => {
     try {
       console.log('Attempting login with:', credentials);
-      const res = await axios.post(`${API_BASE_URL}/api/auth/login`, {
+      const res = await axios.post(`${URL}/auth/login`, {
         email: credentials.email,
         password: credentials.password,
       });
@@ -139,7 +139,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('authToken');
       const { data } = await axios.patch(
-        `${API_BASE_URL}/api/news/${id}/status`,
+        `${URL}/news/${id}/status`,
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -159,7 +159,7 @@ const AdminDashboard = () => {
   const deleteNews = async (id) => {
     try {
       const token = localStorage.getItem('authToken');
-      await axios.delete(`${API_BASE_URL}/api/news/${id}`, {
+      await axios.delete(`${URL}/news/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setNewsArticles((prev) => prev.filter((article) => article._id !== id));
@@ -173,7 +173,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('authToken');
       const res = await axios.patch(
-        `${API_BASE_URL}/api/news/approve/${id}`,
+        `${URL}news/approve/${id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -190,7 +190,7 @@ const AdminDashboard = () => {
     try {
       const token = localStorage.getItem('authToken');
       await axios.patch(
-        `${API_BASE_URL}/api/news/reject/${id}`,
+        `${URL}/news/reject/${id}`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -206,7 +206,7 @@ const AdminDashboard = () => {
   const deleteReporter = async (id) => {
     try {
       const token = localStorage.getItem('authToken');
-      await axios.delete(`${API_BASE_URL}/api/news/reporter/${id}`, {
+      await axios.delete(`${URL}/news/reporter/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setReporters((prev) => prev.filter((reporter) => reporter._id !== id));
@@ -219,7 +219,7 @@ const AdminDashboard = () => {
   const handleViewClick = async (id) => {
     try {
       const token = localStorage.getItem('authToken');
-      const response = await axios.get(`${API_BASE_URL}/api/news/news/${id}`, {
+      const response = await axios.get(`${URL}/news/news/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       console.log("Fetched article", response.data);
