@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../../../components/AppIcon';
-
+const URL = import.meta.env.VITE_API_BASE_URL;
 const BreakingNewsBanner = () => {
   const [isVisible, setIsVisible] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -17,7 +17,7 @@ const BreakingNewsBanner = () => {
       if (selected.district) params.append('district', selected.district);
       if (selected.taluk) params.append('taluk', selected.taluk);
 
-      const res = await fetch(`http://localhost:5000/api/news/get?${params.toString()}`);
+      const res = await fetch(`${URL}/news/get?${params.toString()}`);
       const data = await res.json();
 
       if (data.success) {
