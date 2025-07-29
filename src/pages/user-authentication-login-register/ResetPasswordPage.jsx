@@ -5,7 +5,7 @@ import Input from '../../components/ui/Input';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 import { toast } from 'react-toastify';
-
+const URL = import.meta.env.VITE_API_BASE_URL;
 const ResetPasswordPage = () => {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const ResetPasswordPage = () => {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:5000/api/auth/reset-password/${token}`, {
+      const response = await fetch(`${URL}/auth/reset-password/${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ newPassword })
