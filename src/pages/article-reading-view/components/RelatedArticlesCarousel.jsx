@@ -6,6 +6,8 @@ import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
 
+const URL = import.meta.env.VITE_API_BASE_URL;
+
 const RelatedArticlesCarousel = ({ articles, currentArticleId, category, tags }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [relatedArticles, setRelatedArticles] = useState([]);
@@ -33,7 +35,7 @@ const RelatedArticlesCarousel = ({ articles, currentArticleId, category, tags })
   useEffect(() => {
     const fetchRelatedArticles = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/news/public');
+        const response = await axios.get(`${URL}/news/public`);
         console.log('Related articles API response:', response.data);
 
         // Fetch reporter details for articles where reporter is just an ID
@@ -52,7 +54,7 @@ const RelatedArticlesCarousel = ({ articles, currentArticleId, category, tags })
               if (typeof article.reporter === 'string') {
                 try {
                   const reporterResponse = await axios.get(
-                    `http://localhost:5000/api/reporters/${article.reporter}`
+                    `${URL}/reporters/${article.reporter}`
                   );
                   reporterName = reporterResponse.data.name || 'Unknown Author';
                 } catch (error) {
