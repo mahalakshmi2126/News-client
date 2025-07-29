@@ -4,6 +4,7 @@ import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
 
+ const URL = import.meta.env.VITE_API_BASE_URL;
 const DesktopSidebar = ({ article, relatedArticles, trendingTopics }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
