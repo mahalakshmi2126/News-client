@@ -49,7 +49,7 @@ const ProfileHeader = ({ user, onUpdateProfile }) => {
 
   return (
     <div className="bg-background border border-border rounded-lg p-6">
-      <div className="flex items-center justify-between space-x-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center space-x-4">
           <div className="relative w-16 h-16 rounded-full overflow-hidden">
             {avatarError || !user.avatar ? (
@@ -58,7 +58,7 @@ const ProfileHeader = ({ user, onUpdateProfile }) => {
               </div>
             ) : (
               <Image
-                src={user.avatar || '/assets/images/avatar-placeholder.jpg'}
+                src={user.avatar || '/assets/image/no_image.png'}
                 alt={user.name || 'User'}
                 className="w-full h-full object-cover"
                 onError={() => setAvatarError(true)}
@@ -75,13 +75,17 @@ const ProfileHeader = ({ user, onUpdateProfile }) => {
             </p>
           </div>
         </div>
-        {!isEditing && (
-          <Button variant="primary" onClick={handleEdit} className="flex items-center space-x-2">
-            <Icon name="Edit" size={18} />
-            <span>Edit</span>
-          </Button>
-        )}
+
+        <div className="self-end sm:self-auto">
+          {!isEditing && (
+            <Button variant="primary" onClick={handleEdit} className="flex items-center space-x-2">
+              <Icon name="Edit" size={18} />
+              <span>Edit</span>
+            </Button>
+          )}
+        </div>
       </div>
+
 
       {isEditing && (
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
