@@ -221,7 +221,7 @@ const CommentSection = ({ articleId, comments: initialComments }) => {
               <div className="flex space-x-3">
                 <div className="w-8 h-8 rounded-full overflow-hidden bg-surface flex-shrink-0">
                   <Image
-                    src={user?.avatar || '/assets/images/avatar-placeholder.jpg'}
+                    src={user?.avatar || '/assets/images/no_image.png'}
                     alt={user?.name || 'User'}
                     className="w-full h-full object-cover"
                   />
@@ -283,7 +283,7 @@ const CommentSection = ({ articleId, comments: initialComments }) => {
           <div className="flex space-x-3">
             <div className="w-10 h-10 rounded-full overflow-hidden bg-surface flex-shrink-0">
               <Image
-                src={user?.avatar || '/assets/images/avatar-placeholder.jpg'}
+                src={user?.avatar || '/assets/images/no_image.png'}
                 alt={user?.name || 'User'}
                 className="w-full h-full object-cover"
               />
