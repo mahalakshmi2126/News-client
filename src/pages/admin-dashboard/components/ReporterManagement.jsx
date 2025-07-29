@@ -183,6 +183,8 @@ import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Icon from '../../../components/AppIcon';
 
+
+const URL = import.meta.env.VITE_API_BASE_URL;
 const ReporterManagement = ({ reporters, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReporter, setSelectedReporter] = useState(null);
