@@ -307,6 +307,8 @@ import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 import { uploadToCloudinary } from '../reporter-dashboard/components/utils/uploadToCloudinary';
 
+const URL = import.meta.env.VITE_API_BASE_URL;
+
 const UserProfileSettings = () => {
   const { user, isAuthenticated, setUser, setIsAuthenticated, refreshUserData, signOut } = useContext(UserContext);
   const [activeTab, setActiveTab] = useState('profile');
@@ -355,7 +357,7 @@ const UserProfileSettings = () => {
 
   const handleLogin = async (credentials) => {
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch(`${URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
@@ -403,7 +405,7 @@ const UserProfileSettings = () => {
         avatarUrl = avatarItem.url;
       }
       const response = await axios.put(
-        'http://localhost:5000/api/auth/me',
+        `${URL}/auth/me`,
         { ...updatedData, avatarUrl },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -426,7 +428,7 @@ const UserProfileSettings = () => {
       const token = localStorage.getItem('authToken');
       const updatedUserSettings = { ...user.settings, [type]: updatedSettings };
       const response = await axios.put(
-        'http://localhost:5000/api/auth/me',
+        `${URL}/auth/me`,
         { settings: updatedUserSettings },
         { headers: { Authorization: `Bearer ${token}` } }
       );
