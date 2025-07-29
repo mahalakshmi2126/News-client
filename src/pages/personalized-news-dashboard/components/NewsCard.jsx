@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
-
+const URL = import.meta.env.VITE_API_BASE_URL;
 const NewsCard = ({ article, onBookmark, onShare, onTranslate }) => {
   const [isBookmarked, setIsBookmarked] = useState(article.isBookmarked || false);
   const [showActions, setShowActions] = useState(false);
@@ -38,7 +38,7 @@ const handleBookmark = async (e) => {
   try {
     const token = localStorage.getItem('authToken');
     await axios.post(
-  `http://localhost:5000/api/bookmark/${article.id}`,
+  `${URL}/bookmark/${article.id}`,
   {},
   { headers: { Authorization: `Bearer ${token}` } }
 );
