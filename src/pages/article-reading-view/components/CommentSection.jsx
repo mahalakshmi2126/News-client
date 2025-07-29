@@ -7,6 +7,9 @@ import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import { useUser } from '../../../context/UserContext';
 
+const URL = import.meta.env.VITE_API_BASE_URL;
+
+
 const CommentSection = ({ articleId, comments: initialComments }) => {
   const { user, isAuthenticated } = useUser();
   const [comments, setComments] = useState(initialComments);
@@ -48,7 +51,7 @@ const CommentSection = ({ articleId, comments: initialComments }) => {
 
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/comments/${articleId}/reply/${parentId}`,
+        `${URL}/comments/${articleId}/reply/${parentId}`,
         { content: replyText, parentReplyId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -89,7 +92,7 @@ const CommentSection = ({ articleId, comments: initialComments }) => {
 
     try {
       const res = await axios.patch(
-        `http://localhost:5000/api/comments/${articleId}/like/${commentId}`,
+        `${URL}/comments/${articleId}/like/${commentId}`,
         { isReply, parentId, parentReplyId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
