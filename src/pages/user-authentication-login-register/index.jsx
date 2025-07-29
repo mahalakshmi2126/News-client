@@ -9,6 +9,8 @@ import ForgotPasswordForm from './components/ForgotPasswordForm';
 import Icon from '../../components/AppIcon';
 import { toast } from 'react-toastify';
 
+const URL = import.meta.env.VITE_API_BASE_URL;
+
 const UserAuthenticationPage = () => {
   const { setUser, setIsAuthenticated, refreshUserData } = useContext(UserContext);
   const [activeTab, setActiveTab] = useState('login');
@@ -33,7 +35,7 @@ const UserAuthenticationPage = () => {
     setAuthError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -101,7 +103,7 @@ const UserAuthenticationPage = () => {
     setAuthError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(`${URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...formData, role: 'user' }), // Force user role
@@ -131,7 +133,7 @@ const UserAuthenticationPage = () => {
     setAuthError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/forgot-password', {
+      const response = await fetch(`${URL}/auth/forgot-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
