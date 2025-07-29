@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import Button from '../../../components/ui/Button';
 import Icon from '../../../components/AppIcon';
-
+const URL = import.meta.env.VITE_API_BASE_URL;
 const Analytics = () => {
   const [timeRange, setTimeRange] = useState('7days');
 
@@ -17,7 +17,7 @@ const Analytics = () => {
   const fetchAnalytics = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      const res = await axios.get(`http://localhost:5000/api/analytics?range=${timeRange}`, {
+      const res = await axios.get(`${URL}/analytics?range=${timeRange}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -33,7 +33,7 @@ const Analytics = () => {
   const handleSendReport = async () => {
     try {
       const token = localStorage.getItem('authToken');
-      await axios.post(`http://localhost:5000/api/analytics/send-report?range=${timeRange}`, {}, {
+      await axios.post(`${URL}/analytics/send-report?range=${timeRange}`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success('Report sent successfully');
