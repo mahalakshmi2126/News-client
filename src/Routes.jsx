@@ -20,7 +20,7 @@ const Routes = () => {
       <ErrorBoundary>
         <ScrollToTop />
         <RouterRoutes>
-          <Route path="/" element={<PersonalizedNewsDashboard />} />
+          <Route path="/" element={<UserAuthenticationLoginRegister />} />
           <Route path="/user-authentication-login-register" element={<UserAuthenticationLoginRegister />} />
           <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
           <Route path="/personalized-news-dashboard" element={<PersonalizedNewsDashboard />} />
