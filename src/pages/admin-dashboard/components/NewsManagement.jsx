@@ -5,6 +5,8 @@ import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Icon from '../../../components/AppIcon';
 
+const URL = import.meta.env.VITE_API_BASE_URL;
+
 const NewsManagement = ({ articles, onUpdateStatus, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -62,7 +64,7 @@ const NewsManagement = ({ articles, onUpdateStatus, onDelete }) => {
     try {
       const token = localStorage.getItem('authToken');
       await axios.put(
-        `http://localhost:5000/api/news/${selectedArticle._id}`,
+        `${URL}/news/${selectedArticle._id}`,
         {
           title: selectedArticle.title,
           content: selectedArticle.content,
