@@ -90,7 +90,7 @@ const UserProfileSettings = () => {
 
   const handleLogout = () => {
     signOut();
-    navigate('/user-authentication-login-register');
+    navigate('/');
     toast.success('Signed out successfully');
   };
 
