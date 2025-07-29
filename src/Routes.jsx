@@ -1,11 +1,11 @@
 import React from "react";
-import { BrowserRouter, Routes as RouterRoutes, Route } from "react-router-dom";
+import { BrowserRouter, Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
 import ScrollToTop from "components/ScrollToTop";
 import ErrorBoundary from "components/ErrorBoundary";
+import { useUser } from "context/UserContext"; // import user context
 import UserAuthenticationLoginRegister from "pages/user-authentication-login-register";
 import ResetPasswordPage from './pages/user-authentication-login-register/ResetPasswordPage';
 import PersonalizedNewsDashboard from "pages/personalized-news-dashboard";
-// import NewsCategoriesSearch from "pages/news-categories-search";
 import BookmarksReadingHistory from "pages/bookmarks-reading-history";
 import UserProfileSettings from "pages/user-profile-settings";
 import ArticleReadingView from "pages/article-reading-view";
@@ -15,19 +15,74 @@ import NotFound from "pages/NotFound";
 import OnboardingForm from "pages/personalized-news-dashboard/components/OnboardingForm";
 
 const Routes = () => {
+  const { isAuthenticated } = useUser(); // ⬅️ use auth state
+
   return (
     <BrowserRouter>
       <ErrorBoundary>
         <ScrollToTop />
         <RouterRoutes>
-          <Route path="/" element={<UserAuthenticationLoginRegister />} />
-          <Route path="/user-authentication-login-register" element={<UserAuthenticationLoginRegister />} />
+          <Route
+            path="/"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/personalized-news-dashboard" replace />
+              ) : (
+                <Navigate to="/user-authentication-login-register" replace />
+              )
+            }
+          />
+          <Route
+            path="/user-authentication-login-register"
+            element={
+              isAuthenticated ? (
+                <Navigate to="/personalized-news-dashboard" replace />
+              ) : (
+                <UserAuthenticationLoginRegister />
+              )
+            }
+          />
           <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-          <Route path="/personalized-news-dashboard" element={<PersonalizedNewsDashboard />} />
-          <Route path="/personalized-news-dashboard/onboarding" element={<OnboardingForm />} />
-          {/* <Route path="/news-categories-search" element={<NewsCategoriesSearch />} /> */}
-          <Route path="/bookmarks-reading-history" element={<BookmarksReadingHistory />} />
-          <Route path="/user-profile-settings" element={<UserProfileSettings />} />
+          <Route
+            path="/personalized-news-dashboard"
+            element={
+              isAuthenticated ? (
+                <PersonalizedNewsDashboard />
+              ) : (
+                <Navigate to="/user-authentication-login-register" replace />
+              )
+            }
+          />
+          <Route
+            path="/personalized-news-dashboard/onboarding"
+            element={
+              isAuthenticated ? (
+                <OnboardingForm />
+              ) : (
+                <Navigate to="/user-authentication-login-register" replace />
+              )
+            }
+          />
+          <Route
+            path="/bookmarks-reading-history"
+            element={
+              isAuthenticated ? (
+                <BookmarksReadingHistory />
+              ) : (
+                <Navigate to="/user-authentication-login-register" replace />
+              )
+            }
+          />
+          <Route
+            path="/user-profile-settings"
+            element={
+              isAuthenticated ? (
+                <UserProfileSettings />
+              ) : (
+                <Navigate to="/user-authentication-login-register" replace />
+              )
+            }
+          />
           <Route path="/article-reading-view" element={<ArticleReadingView />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/reporter-dashboard" element={<ReporterDashboard />} />
