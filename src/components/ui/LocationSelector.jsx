@@ -256,6 +256,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Icon from '../AppIcon';
 import { toast } from 'react-toastify';
+const URL = import.meta.env.VITE_API_BASE_URL;
 
 const LocationSelector = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -271,7 +272,7 @@ const LocationSelector = () => {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/location/districts');
+        const response = await fetch(`${URL}/location/districts`);
         const data = await response.json();
         if (!data.success || !Array.isArray(data.districts)) throw new Error('Invalid location data');
 
