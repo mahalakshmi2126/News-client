@@ -14,7 +14,7 @@ export const UserProvider = ({ children }) => {
         return;
       }
 
-      const response = await fetch('${URL}/auth/me', {
+      const response = await fetch(`${URL}/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
