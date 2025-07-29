@@ -198,6 +198,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Icon from '../../../components/AppIcon';
 import ReactAnimatedWeather from 'react-animated-weather';
+const URL = import.meta.env.VITE_API_BASE_URL;
 
 const TrendingSidebar = ({ selectedLocation = 'Vellore', onToggle, onLocationChange }) => {
   const [weather, setWeather] = useState(null);
@@ -247,7 +248,7 @@ const TrendingSidebar = ({ selectedLocation = 'Vellore', onToggle, onLocationCha
     try {
       setLoading(true);
       const [weatherRes, marketRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/external-apis/weather', {
+        axios.get(`${URL}/external-apis/weather`, {
           params: { city },
           headers: { Authorization: `Bearer ${token}` },
         }).catch(() => ({
@@ -256,7 +257,7 @@ const TrendingSidebar = ({ selectedLocation = 'Vellore', onToggle, onLocationCha
             weather: [{ main: 'Clear', description: 'clear sky' }],
           },
         })),
-        axios.get('http://localhost:5000/api/external-apis/market', {
+        axios.get(`${URL}/external-apis/market`, {
           headers: { Authorization: `Bearer ${token}` },
         }).catch(() => ({
           data: {
@@ -280,7 +281,7 @@ const TrendingSidebar = ({ selectedLocation = 'Vellore', onToggle, onLocationCha
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          const locationRes = await axios.get('http://localhost:5000/api/external-apis/location', {
+          const locationRes = await axios.get(`${URL}/external-apis/location`, {
             params: { lat: latitude, lon: longitude },
             headers: { Authorization: `Bearer ${token}` },
           });
