@@ -3,7 +3,7 @@ import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 import Icon from '../../../components/AppIcon';
 import { toast } from 'react-toastify';
-
+const URL = import.meta.env.VITE_API_BASE_URL;
 const PostNewsForm = ({ onSubmit, reporterData }) => {
   const [formData, setFormData] = useState({
     title: '',
@@ -26,7 +26,7 @@ const PostNewsForm = ({ onSubmit, reporterData }) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/category/get');
+        const res = await fetch(`${URL}/category/get`);
         const data = await res.json();
         setCategories(data.categories || []);
       } catch (err) {
@@ -37,7 +37,7 @@ const PostNewsForm = ({ onSubmit, reporterData }) => {
 
     const fetchDistricts = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/location/districts');
+        const res = await fetch(`${URL}/location/districts`);
         const data = await res.json();
         const districts = Array.isArray(data) ? data : data.districts || [];
         setAllDistricts(districts);
