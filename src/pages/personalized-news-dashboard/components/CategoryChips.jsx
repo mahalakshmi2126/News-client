@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import Icon from '../../../components/AppIcon';
-
+const URL = import.meta.env.VITE_API_BASE_URL;
 const CategoryChips = ({ onCategorySelect, selectedCategory }) => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/category/get');
+        const res = await fetch(`${URL}/category/get`);
         const data = await res.json();
         if (data.success) {
           setCategories(data.categories);
