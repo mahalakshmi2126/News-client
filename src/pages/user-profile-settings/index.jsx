@@ -240,8 +240,7 @@ const UserProfileSettings = () => {
             <>
               {activeTab === 'profile' && (
                 <div className="p-4">
-                  <ProfileHeader user={user} onUpdateProfile={handleUpdateProfile} />
-                  <div className="mt-6">{renderTabContent()}</div>
+                  {renderTabContent()}
                 </div>
               )}
             </>
