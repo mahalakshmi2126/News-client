@@ -406,6 +406,8 @@ import Button from '../../../components/ui/Button';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
+const URL = import.meta.env.VITE_API_BASE_URL;
+
 const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, onShare }) => {
   const [fontSize, setFontSize] = useState('base');
   const [isDarkMode, setIsDarkMode] = useState(false);
