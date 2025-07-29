@@ -57,7 +57,7 @@ const UserAuthenticationPage = () => {
         _id: user._id,
         name: user.name || 'User',
         email: user.email || '',
-        avatar: user.avatar || '/assets/images/avatar-placeholder.jpg',
+        avatar: user.avatar || '/assets/images/no_image.png',
         initials: user.initials || (user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'),
         role: user.role || 'user',
         bio: user.bio || '',
