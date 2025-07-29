@@ -351,7 +351,7 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
     location: existingData?.location || { state: '', district: '', taluk: '' },
     bio: existingData?.bio || '',
     phone: existingData?.phone || '',
-    avatar: existingData?.avatar || '/assets/images/avatar-placeholder.jpg',
+    avatar: existingData?.avatar || '/assets/images/no_image.png',
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -365,7 +365,7 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
         location: user.location || { state: '', district: '', taluk: '' },
         bio: user.bio || '',
         phone: user.phone || '',
-        avatar: user.avatar || '/assets/images/avatar-placeholder.jpg',
+        avatar: user.avatar || '/assets/images/no_image.png',
       });
     }
   }, []);
