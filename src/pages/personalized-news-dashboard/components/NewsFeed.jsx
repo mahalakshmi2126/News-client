@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import NewsCard from './NewsCard';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
+const URL = import.meta.env.VITE_API_BASE_URL;
 
 const NewsFeed = ({ selectedCategory, refreshTrigger }) => {
   const [articles, setArticles] = useState([]);
@@ -49,7 +50,7 @@ const NewsFeed = ({ selectedCategory, refreshTrigger }) => {
         if (taluk) params.append('taluk', taluk);
         if (category !== 'all') params.append('category', category);
 
-        const response = await axios.get(`http://localhost:5000/api/news/filter?${params}`, config);
+        const response = await axios.get(`${URL}/news/filter?${params}`, config);
 
         const mappedArticles = response.data.articles.map((article) => ({
           id: article._id,
@@ -127,7 +128,7 @@ const handleShare = async (article) => {
 
     // 1. Update share count in backend
     await axios.patch(
-      `http://localhost:5000/api/news/news/${article.id}/share`,
+      `${URL}/news/news/${article.id}/share`,
       {},
       {
         headers: {
@@ -205,7 +206,7 @@ const handleShare = async (article) => {
         const token = localStorage.getItem('authToken');
         const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {};
 
-        const response = await axios.get('http://localhost:5000/api/news/public', config);
+        const response = await axios.get(`${URL}/news/public`, config);
 
         const filtered = response.data.filter((article) =>
           article.title?.toLowerCase().includes(query) ||
