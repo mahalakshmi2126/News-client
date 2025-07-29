@@ -283,7 +283,7 @@ import MyArticles from './components/MyArticles';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { uploadToCloudinary } from './components/utils/uploadToCloudinary';
-
+const URL = import.meta.env.VITE_API_BASE_URL;
 const ReporterDashboard = ({ initialTab = 'post-news' }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeTab, setActiveTab] = useState(initialTab);
@@ -322,7 +322,7 @@ const ReporterDashboard = ({ initialTab = 'post-news' }) => {
 
     const fetchMyNews = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/news/my-news', {
+        const res = await axios.get(`${URL}/news/my-news`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` },
         });
         setMyArticles(res.data?.news || []);
@@ -337,7 +337,7 @@ const ReporterDashboard = ({ initialTab = 'post-news' }) => {
 
   const handleLogin = async (credentials) => {
     try {
-      const res = await fetch('http://localhost:5000/api/auth/login', {
+      const res = await fetch(`${URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials),
@@ -426,7 +426,7 @@ const ReporterDashboard = ({ initialTab = 'post-news' }) => {
 
     try {
       const res = await axios.post(
-        'http://localhost:5000/api/news/create',
+        `${URL}/news/create`,
         {
           title: newsData.title,
           content: newsData.content,
