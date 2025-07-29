@@ -532,6 +532,8 @@ import Button from '../../components/ui/Button';
 import BookmarkCard from './components/BookmarkCard';
 import axios from 'axios';
 
+const URL = import.meta.env.VITE_API_BASE_URL;
+
 const BookmarksReading = () => {
   const { user, isAuthenticated, refreshUserData } = useContext(UserContext);
   const navigate = useNavigate();
@@ -568,10 +570,10 @@ const BookmarksReading = () => {
       try {
         console.log('Fetching data with token:', token);
         const [bookmarksRes, categoriesRes] = await Promise.all([
-          axios.get('http://localhost:5000/api/bookmark', {
+          axios.get(`${URL}/bookmark`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get('http://localhost:5000/api/category/get', {
+          axios.get(`${URL}/category/get`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -684,9 +686,9 @@ const BookmarksReading = () => {
         return;
       }
 
-      console.log('Sending POST request to:', `http://localhost:5000/api/bookmark/${bookmarkId}`); // Debug log
+      console.log('Sending POST request to:', `${URL}/bookmark/${bookmarkId}`); // Debug log
       const response = await axios.post(
-        `http://localhost:5000/api/bookmark/${bookmarkId}`,
+        `${URL}/bookmark/${bookmarkId}`,
         {}, // Empty body as backend doesn't expect data
         { headers: { Authorization: `Bearer ${token}` } }
       );
