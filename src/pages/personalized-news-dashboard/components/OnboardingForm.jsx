@@ -443,7 +443,7 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
       const errorMessage = err.response?.data?.message || 'Failed to submit onboarding.';
       if (err.response?.status === 400 && errorMessage.includes('already submitted')) {
         toast.info('Reporter application already submitted.');
-        onComplete({ ...existingData, reporterFormSubmitted: true }); // Trigger navigation
+        onComplete({ ...existingData, reporterFormSubmitted: true });
         return; // Exit early to prevent double toast
       }
       toast.error(errorMessage);
@@ -457,18 +457,20 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl mt-5 text-center font-heading font-semibold text-text-primary">
-          Become a NewsHub Reporter
-        </h1>
-        <p className="text-text-secondary mt-5 text-center">
-          Fill out your profile to apply as a news reporter
-        </p>
-      </div>
-      <div className="bg-white/30 rounded-lg shadow-card p-6">
+    <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <div className="max-w-4xl mx-auto bg-white shadow-xl rounded-xl p-6 sm:p-8 md:p-10">
+        <div className="mb-6 text-center">
+          <h1 className="text-2xl font-heading font-semibold text-text-primary">
+            Become a NewsHub Reporter
+          </h1>
+          <p className="text-text-secondary mt-3">
+            Fill out your profile to apply as a news reporter
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Name Input */}
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-text-primary mb-2">
                 Full Name *
@@ -490,6 +492,8 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
                 </p>
               )}
             </div>
+
+            {/* Phone Input */}
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-text-primary mb-2">
                 Phone Number (Optional)
@@ -512,7 +516,10 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
               )}
             </div>
           </div>
+
+          {/* Location Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* State */}
             <div>
               <label htmlFor="location.state" className="block text-sm font-medium text-text-primary mb-2">
                 State *
@@ -534,6 +541,8 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
                 </p>
               )}
             </div>
+
+            {/* District */}
             <div>
               <label htmlFor="location.district" className="block text-sm font-medium text-text-primary mb-2">
                 District *
@@ -555,6 +564,8 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
                 </p>
               )}
             </div>
+
+            {/* Taluk */}
             <div>
               <label htmlFor="location.taluk" className="block text-sm font-medium text-text-primary mb-2">
                 Taluk (Optional)
@@ -570,6 +581,8 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
               />
             </div>
           </div>
+
+          {/* Bio */}
           <div>
             <label htmlFor="bio" className="block text-sm font-medium text-text-primary mb-2">
               Bio (Optional)
@@ -585,13 +598,13 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
             />
           </div>
+
+          {/* Info Box */}
           <div className="bg-surface rounded-lg p-4">
             <div className="flex items-start space-x-3">
               <Icon name="Info" size={20} className="text-accent mt-0.5" />
               <div>
-                <h3 className="text-sm font-medium text-text-primary mb-1">
-                  Getting Started Tips
-                </h3>
+                <h3 className="text-sm font-medium text-text-primary mb-1">Getting Started Tips</h3>
                 <ul className="text-sm text-text-secondary space-y-1">
                   <li>• Ensure your location is accurate for local news coverage</li>
                   <li>• All articles will be reviewed before publication</li>
@@ -601,6 +614,8 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
               </div>
             </div>
           </div>
+
+          {/* Submit Button */}
           <Button
             type="submit"
             variant="primary"
@@ -614,6 +629,7 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
       </div>
     </div>
   );
+
 };
 
 export default OnboardingForm;
