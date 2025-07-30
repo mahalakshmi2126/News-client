@@ -78,7 +78,7 @@ const UserAuthenticationPage = () => {
       await refreshUserData();
 
       toast.success('Login Successful!');
-      navigate('/personalized-news-dashboard', { state: { fromAuth: true, message: 'Welcome back!' } });
+      navigate('/personalized-news-dashboard123', { state: { fromAuth: true, message: 'Welcome back!' } });
     } catch (error) {
       toast.error(error.message);
       // Clear any partial state
