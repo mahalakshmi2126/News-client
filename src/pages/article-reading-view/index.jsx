@@ -6,11 +6,12 @@
 // import ArticleHeader from './components/ArticleHeader';
 // import ReadingProgressBar from './components/ReadingProgressBar';
 // import ArticleContent from './components/ArticleContent';
-// import SocialSharingPanel from './components/SocialSharingPanel';
+// // import SocialSharingPanel from './components/SocialSharingPanel';
 // import RelatedArticlesCarousel from './components/RelatedArticlesCarousel';
 // import CommentSection from './components/CommentSection';
-// // import FloatingToolbar from './components/FloatingToolbar';
 // import DesktopSidebar from './components/DesktopSidebar';
+
+// const URL = import.meta.env.VITE_API_BASE_URL;
 
 // const ArticleReadingView = () => {
 //   const [searchParams] = useSearchParams();
@@ -29,7 +30,7 @@
 //   useEffect(() => {
 //     const fetchComments = async () => {
 //       try {
-//         const res = await axios.get(` http://localhost:5000/api/comments/${articleId}`);
+//         const res = await axios.get(`${URL}/comments/${articleId}`);
 //         setComments(res.data.comments || []);
 //       } catch (err) {
 //         console.error('Error fetching comments:', err);
@@ -50,7 +51,7 @@
 
 //       setIsLoading(true);
 //       try {
-//         const articleResponse = await axios.get(` http://localhost:5000/api/news/news/${articleId}`);
+//         const articleResponse = await axios.get(`${URL}/news/news/${articleId}`);
 //         const articleData = articleResponse.data;
 
 //         setArticle({
@@ -73,7 +74,7 @@
 //         });
 //         setIsBookmarked(articleData.isBookmarked || false);
 
-//         const response = await axios.get(' http://localhost:5000/api/news/public');
+//         const response = await axios.get(`${URL}/news/public`);
 //         const fetchedArticles = await Promise.all(
 //           response.data
 //             .filter((item) => {
@@ -87,7 +88,7 @@
 //               if (typeof item.reporter === 'string') {
 //                 try {
 //                   const reporterResponse = await axios.get(
-//                     ` http://localhost:5000/api/reporters/${item.reporter}`
+//                     `${URL}/reporters/${item.reporter}`
 //                   );
 //                   reporterName = reporterResponse.data.name || 'Unknown Author';
 //                 } catch (error) {
@@ -133,37 +134,64 @@
 //     return () => window.removeEventListener('scroll', handleScroll);
 //   }, []);
 
-//   const handleToggleBookmark = async () => {
-//     const newBookmarkState = !isBookmarked;
+//   const handleToggleBookmark = async (articleId, newBookmarkState) => {
 //     setIsBookmarked(newBookmarkState);
 //     try {
 //       const token = localStorage.getItem('token');
 //       await axios.put(
-//         ` http://localhost:5000/api/news/news/${articleId}`,
+//         `${URL}/news/news/${articleId}`,
 //         { isBookmarked: newBookmarkState },
 //         token ? { headers: { Authorization: `Bearer ${token}` } } : {}
 //       );
 //     } catch (error) {
 //       console.error('Bookmark error:', error.response?.status, error.response?.data);
-//       toast.error('Failed to update bookmark');
 //       setIsBookmarked(!newBookmarkState);
 //     }
 //   };
 
-//   const handleShare = () => {
+//   const handleShare = async (article) => {
+//     try {
+//       const token = localStorage.getItem('authToken');
+//       await axios.patch(
+//         `${URL}/news/news/${article.id}/share`,
+//         {},
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
+
+//       setArticle((prev) => ({
+//         ...prev,
+//         shares: prev.shares + 1,
+//       }));
+
+//       if (navigator.share) {
+//         await navigator.share({
+//           title: article.title,
+//           text: article.content.replace(/<[^>]+>/g, ''),
+//           url: `${window.location.origin}/article-reading-view?id=${article.id}`,
+//         });
+//       } else {
+//         navigator.clipboard.writeText(`${window.location.origin}/article-reading-view?id=${article.id}`);
+//         toast.info('Link copied to clipboard');
+//       }
+
+//       toast.success('Article shared and count updated!');
+//     } catch (error) {
+//       console.error('Error sharing article:', error);
+//       toast.error('Failed to share or update share count');
+//     }
 //     setIsSharingPanelOpen(!isSharingPanelOpen);
 //   };
 
-//   const handleRateArticle = (rating) => {
-//     setArticleRating((prev) => ({
-//       average: (prev.average * prev.count + rating) / (prev.count + 1),
-//       count: prev.count + 1,
-//     }));
-//   };
+//   // const handleRateArticle = (rating) => {
+//   //   setArticleRating((prev) => ({
+//   //     average: (prev.average * prev.count + rating) / (prev.count + 1),
+//   //     count: prev.count + 1,
+//   //   }));
+//   // };
 
-//   const handleToggleAudio = () => {
-//     toast.info('Audio playback not implemented');
-//   };
+//   // const handleToggleAudio = () => {
+//   //   toast.info('Audio playback not implemented');
+//   // };
 
 //   if (isLoading) {
 //     return (
@@ -214,7 +242,13 @@
 //       <main className="pt-16" ref={contentRef}>
 //         <div className="max-w-7xl mx-auto flex">
 //           <div className="flex-1 xl:mr-96">
-//             <ArticleContent article={article} currentLanguage={currentLanguage} isTranslating={false} />
+//             <ArticleContent
+//               article={article}
+//               currentLanguage={currentLanguage}
+//               isTranslating={false}
+//               onBookmark={handleToggleBookmark}
+//               onShare={handleShare}
+//             />
 //             <RelatedArticlesCarousel
 //               articles={relatedArticles}
 //               currentArticleId={article.id}
@@ -229,20 +263,11 @@
 //           />
 //         </div>
 //       </main>
-//       {/* <FloatingToolbar
-//         isBookmarked={isBookmarked}
-//         onToggleBookmark={handleToggleBookmark}
-//         onShare={handleShare}
-//         articleRating={articleRating}
-//         onRateArticle={handleRateArticle}
-//         onToggleAudio={handleToggleAudio}
-//         isAudioPlaying={false}
-//       /> */}
-//       <SocialSharingPanel
+//       {/* <SocialSharingPanel
 //         article={article}
 //         isOpen={isSharingPanelOpen}
 //         onToggle={() => setIsSharingPanelOpen(!isSharingPanelOpen)}
-//       />
+//       /> */}
 //     </div>
 //   );
 // };
@@ -250,24 +275,24 @@
 // export default ArticleReadingView;
 
 
-
-
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import GlobalHeader from '../../components/ui/GlobalHeader';
 import ArticleHeader from './components/ArticleHeader';
 import ReadingProgressBar from './components/ReadingProgressBar';
 import ArticleContent from './components/ArticleContent';
-// import SocialSharingPanel from './components/SocialSharingPanel';
 import RelatedArticlesCarousel from './components/RelatedArticlesCarousel';
 import CommentSection from './components/CommentSection';
 import DesktopSidebar from './components/DesktopSidebar';
+import { useUser } from '../../context/UserContext';
 
 const URL = import.meta.env.VITE_API_BASE_URL;
 
 const ArticleReadingView = () => {
+  const { isAuthenticated } = useUser();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const articleId = searchParams.get('id');
   const [article, setArticle] = useState(null);
@@ -389,9 +414,14 @@ const ArticleReadingView = () => {
   }, []);
 
   const handleToggleBookmark = async (articleId, newBookmarkState) => {
+    if (!isAuthenticated) {
+      toast.warning('Please sign in to bookmark articles');
+      navigate('/user-authentication-login-register');
+      return;
+    }
     setIsBookmarked(newBookmarkState);
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       await axios.put(
         `${URL}/news/news/${articleId}`,
         { isBookmarked: newBookmarkState },
@@ -400,10 +430,16 @@ const ArticleReadingView = () => {
     } catch (error) {
       console.error('Bookmark error:', error.response?.status, error.response?.data);
       setIsBookmarked(!newBookmarkState);
+      toast.error('Failed to update bookmark');
     }
   };
 
   const handleShare = async (article) => {
+    if (!isAuthenticated) {
+      toast.warning('Please sign in to share articles');
+      navigate('/user-authentication-login-register');
+      return;
+    }
     try {
       const token = localStorage.getItem('authToken');
       await axios.patch(
@@ -436,16 +472,35 @@ const ArticleReadingView = () => {
     setIsSharingPanelOpen(!isSharingPanelOpen);
   };
 
-  // const handleRateArticle = (rating) => {
-  //   setArticleRating((prev) => ({
-  //     average: (prev.average * prev.count + rating) / (prev.count + 1),
-  //     count: prev.count + 1,
-  //   }));
-  // };
+  const handleRateArticle = (rating) => {
+    // Allow rating for all users
+    setArticleRating((prev) => ({
+      average: (prev.average * prev.count + rating) / (prev.count + 1),
+      count: prev.count + 1,
+    }));
+    toast.success('Thank you for rating the article!');
+  };
 
-  // const handleToggleAudio = () => {
-  //   toast.info('Audio playback not implemented');
-  // };
+  const handleCommentSubmit = async (comment) => {
+    if (!isAuthenticated) {
+      toast.warning('Please sign in to comment on articles');
+      navigate('/user-authentication-login-register');
+      return;
+    }
+    try {
+      const token = localStorage.getItem('authToken');
+      const res = await axios.post(
+        `${URL}/comments/${articleId}`,
+        { content: comment },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setComments((prev) => [...prev, res.data]);
+      toast.success('Comment posted successfully');
+    } catch (error) {
+      console.error('Error posting comment:', error);
+      toast.error('Failed to post comment');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -492,6 +547,7 @@ const ArticleReadingView = () => {
         availableLanguages={[{ code: 'en', name: 'English', flag: '🇺🇸' }]}
         onLanguageChange={() => toast.info('Translations not available')}
         article={article}
+        onRate={handleRateArticle}
       />
       <main className="pt-16" ref={contentRef}>
         <div className="max-w-7xl mx-auto flex">
@@ -502,6 +558,7 @@ const ArticleReadingView = () => {
               isTranslating={false}
               onBookmark={handleToggleBookmark}
               onShare={handleShare}
+              onRate={handleRateArticle}
             />
             <RelatedArticlesCarousel
               articles={relatedArticles}
@@ -509,7 +566,11 @@ const ArticleReadingView = () => {
               category={article.category}
               tags={article.tags}
             />
-            <CommentSection articleId={article.id} comments={comments} />
+            <CommentSection
+              articleId={article.id}
+              comments={comments}
+              onCommentSubmit={handleCommentSubmit}
+            />
           </div>
           <DesktopSidebar
             article={article}
@@ -517,11 +578,6 @@ const ArticleReadingView = () => {
           />
         </div>
       </main>
-      {/* <SocialSharingPanel
-        article={article}
-        isOpen={isSharingPanelOpen}
-        onToggle={() => setIsSharingPanelOpen(!isSharingPanelOpen)}
-      /> */}
     </div>
   );
 };
