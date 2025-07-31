@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes as RouterRoutes, Route, Navigate } from "react-router-dom";
 import ScrollToTop from "components/ScrollToTop";
 import ErrorBoundary from "components/ErrorBoundary";
-import { useUser } from "context/UserContext"; // import user context
+import { useUser } from "context/UserContext";
 import UserAuthenticationLoginRegister from "pages/user-authentication-login-register";
 import ResetPasswordPage from './pages/user-authentication-login-register/ResetPasswordPage';
 import PersonalizedNewsDashboard from "pages/personalized-news-dashboard";
@@ -15,7 +15,7 @@ import NotFound from "pages/NotFound";
 import OnboardingForm from "pages/personalized-news-dashboard/components/OnboardingForm";
 
 const Routes = () => {
-  const { isAuthenticated } = useUser(); // ⬅️ use auth state
+  const { isAuthenticated } = useUser();
 
   return (
     <BrowserRouter>

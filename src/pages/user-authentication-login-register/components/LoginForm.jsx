@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Input from '../../../components/ui/Input';
 import Button from '../../../components/ui/Button';
 import Icon from '../../../components/AppIcon';
+import { GoogleLogin } from '@react-oauth/google';
 
 const LoginForm = ({ onSubmit, isLoading, onForgotPassword }) => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,7 @@ const LoginForm = ({ onSubmit, isLoading, onForgotPassword }) => {
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -27,19 +28,19 @@ const LoginForm = ({ onSubmit, isLoading, onForgotPassword }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
-    
+
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -122,7 +123,7 @@ const LoginForm = ({ onSubmit, isLoading, onForgotPassword }) => {
         </label>
 
         <button
-        onClick={onForgotPassword}
+          onClick={onForgotPassword}
           disabled={isLoading}
           className="font-medium bg-white  text-blue-400 underline hover:text-blue-600"
         >
@@ -140,10 +141,31 @@ const LoginForm = ({ onSubmit, isLoading, onForgotPassword }) => {
         {isLoading ? 'Signing In...' : 'Sign In'}
       </Button>
 
-      {/* <div className="text-center text-sm text-text-secondary">
-        <span>Demo credentials: </span>
-        <span className="font-mono text-accent">demo@newshub.com / demo123</span>
-      </div> */}
+      {/* Divider */}
+      <div className="relative my-4">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="bg-background px-2 text-text-secondary">or</span>
+        </div>
+      </div>
+
+      {/* Google Sign-In Button */}
+      <div className="w-full flex justify-center">
+        <GoogleLogin
+          onSuccess={(credentialResponse) => {
+            // Pass the token to parent (you can also handle it here)
+            console.log('Google Login Success:', credentialResponse);
+            onSubmit({ googleCredential: credentialResponse });
+          }}
+          onError={() => {
+            console.log('Google Login Failed');
+          }}
+          size="large"
+          shape="pill"
+        />
+      </div>
     </form>
   );
 };
@@ -261,7 +283,7 @@ export default LoginForm;
 
 //     if (data.success) {
 //       localStorage.setItem('token', data.token);
-//       window.location.href = '/personalized-news-dashboard'; 
+//       window.location.href = '/personalized-news-dashboard';
 //     } else {
 //       alert(data.message || 'Login failed');
 //     }

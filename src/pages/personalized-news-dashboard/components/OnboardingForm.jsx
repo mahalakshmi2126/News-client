@@ -444,7 +444,7 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
       if (err.response?.status === 400 && errorMessage.includes('already submitted')) {
         toast.info('Reporter application already submitted.');
         onComplete({ ...existingData, reporterFormSubmitted: true });
-        return; // Exit early to prevent double toast
+        return; 
       }
       toast.error(errorMessage);
     } finally {
@@ -453,7 +453,7 @@ const OnboardingForm = ({ onComplete, isCompleted, existingData }) => {
   };
 
   if (isCompleted) {
-    return null; // Don't show form if onboarding is completed
+    return null;
   }
 
   return (

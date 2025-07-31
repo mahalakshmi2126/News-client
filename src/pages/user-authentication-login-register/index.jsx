@@ -8,6 +8,8 @@ import RegisterForm from './components/RegisterForm';
 import ForgotPasswordForm from './components/ForgotPasswordForm';
 import Icon from '../../components/AppIcon';
 import { toast } from 'react-toastify';
+import { jwtDecode } from 'jwt-decode';
+
 
 const URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -25,28 +27,30 @@ const UserAuthenticationPage = () => {
   }, [activeTab]);
 
   const handleLogin = async (formData) => {
-    // Validate formData
-    if (!formData.email || !formData.password) {
-      toast.error('Please enter both email and password');
-      return;
-    }
+  setIsLoading(true);
+  setAuthError('');
 
-    setIsLoading(true);
-    setAuthError('');
+  try {
+    let payload;
 
-    try {
-      const response = await fetch(`${URL}/auth/login`, {
+    // ✅ Check if it's Google login
+    if (formData.googleCredential) {
+      const decoded = jwtDecode(formData.googleCredential.credential); // ✅ correct
+      payload = {
+        name: decoded.name,
+        email: decoded.email,
+      };
+
+      const response = await fetch(`${URL}/auth/google-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
+      if (!response.ok) throw new Error(data.message || 'Google login failed');
 
-      // Restrict to user role only
+      // ✅ Proceed with user validation
       if (data.user.role !== 'user') {
         throw new Error('This page is for regular users only. Please use the appropriate dashboard.');
       }
@@ -67,30 +71,78 @@ const UserAuthenticationPage = () => {
         reporterFormSubmitted: user.reporterFormSubmitted || false,
       };
 
-      // Set user data and tokens
       localStorage.setItem('authToken', token);
       localStorage.setItem('generalUser', JSON.stringify(userObj));
       localStorage.setItem('role', userObj.role);
       setUser(userObj);
       setIsAuthenticated(true);
-
-      // Fetch full user data
       await refreshUserData();
 
-      toast.success('Login Successful!');
-      navigate('/personalized-news-dashboard', { state: { fromAuth: true, message: 'Welcome back!' } });
-    } catch (error) {
-      toast.error(error.message);
-      // Clear any partial state
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('generalUser');
-      localStorage.removeItem('role');
-      setUser(null);
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
+      toast.success('Google Login Successful!');
+      navigate('/personalized-news-dashboard', {
+        state: { fromAuth: true, message: 'Welcome back!' }
+      });
+      return; // ✅ return to stop here
     }
-  };
+
+    // 👇 Regular email/password login
+    if (!formData.email || !formData.password) {
+      toast.error('Please enter both email and password');
+      return;
+    }
+
+    const response = await fetch(`${URL}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || 'Login failed');
+
+    if (data.user.role !== 'user') {
+      throw new Error('This page is for regular users only. Please use the appropriate dashboard.');
+    }
+
+    const { token, user } = data;
+    const userObj = {
+      id: user._id,
+      _id: user._id,
+      name: user.name || 'User',
+      email: user.email || '',
+      avatar: user.avatar || '/assets/images/no_image.png',
+      initials: user.initials || (user.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'U'),
+      role: user.role || 'user',
+      bio: user.bio || '',
+      location: user.location || { state: '', district: '', taluk: '' },
+      status: user.status || 'active',
+      isApproved: user.isApproved || false,
+      reporterFormSubmitted: user.reporterFormSubmitted || false,
+    };
+
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('generalUser', JSON.stringify(userObj));
+    localStorage.setItem('role', userObj.role);
+    setUser(userObj);
+    setIsAuthenticated(true);
+    await refreshUserData();
+
+    toast.success('Login Successful!');
+    navigate('/personalized-news-dashboard', {
+      state: { fromAuth: true, message: 'Welcome back!' }
+    });
+
+  } catch (error) {
+    toast.error(error.message);
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('generalUser');
+    localStorage.removeItem('role');
+    setUser(null);
+    setIsAuthenticated(false);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleRegister = async (formData) => {
     // Validate formData
