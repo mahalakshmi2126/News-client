@@ -236,14 +236,14 @@ const BreakingNewsBanner = () => {
   return (
     <div
       {...handlers}
-      className="w-full max-w-5xl mx-auto rounded-lg overflow-hidden shadow-md relative"
+      className="w-full max-w-6xl mx-auto rounded-lg overflow-hidden shadow-md relative"
     >
       {/* Image with full coverage */}
       <Link to={`/article-reading-view?id=${current._id}`}>
         <img
           src={current.image}
           alt={current.title}
-          className="w-full h-[300px] sm:h-[350px] object-cover"
+          className="w-full sm:h-[250px] object-cover"
         />
       </Link>
 
