@@ -243,7 +243,7 @@ const BreakingNewsBanner = () => {
         <img
           src={current.image}
           alt={current.title}
-          className="w-full sm:h-[250px] object-cover"
+          className="w-full sm:h-[310px] object-cover"
         />
       </Link>
 
