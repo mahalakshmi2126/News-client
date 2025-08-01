@@ -212,7 +212,6 @@ const handleBookmark = async (e) => {
 
 export default NewsCard;
 
-
 // import React, { useState } from 'react';
 // import { Link } from 'react-router-dom';
 // import Icon from '../../../components/AppIcon';

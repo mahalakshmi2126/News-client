@@ -123,10 +123,16 @@ const NewsFeed = ({ selectedCategory, refreshTrigger }) => {
   };
 
 const handleShare = async (article) => {
-  try {
-    const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem('authToken');
 
-    // 1. Update share count in backend
+  // ✅ If not signed in, show message and stop execution
+  if (!token) {
+    toast.warning('Please sign in to share articles');
+    return; // ❌ Do not navigate, do not proceed
+  }
+
+  try {
+    // ✅ Update share count in backend
     await axios.patch(
       `${URL}/news/news/${article.id}/share`,
       {},
@@ -137,7 +143,7 @@ const handleShare = async (article) => {
       }
     );
 
-    // 2. Update share count locally in state
+    // ✅ Update local share count
     setArticles((prev) =>
       prev.map((item) =>
         item.id === article.id
@@ -146,7 +152,7 @@ const handleShare = async (article) => {
       )
     );
 
-    // 3. Perform the actual share
+    // ✅ Share the link or copy to clipboard
     if (navigator.share) {
       await navigator.share({
         title: article.headline,
@@ -164,7 +170,6 @@ const handleShare = async (article) => {
     toast.error('Failed to share or update share count');
   }
 };
-
 
 
   const handleTranslate = (article) => {

@@ -314,7 +314,7 @@ const BookmarksReading = () => {
 
       if (!token || !isAuthenticated) {
         toast.error('Please log in to access your collections.');
-        navigate(`/user-authentication-login-register?redirect=${encodeURIComponent(location.pathname)}`);
+        // navigate(`/user-authentication-login-register?redirect=${encodeURIComponent(location.pathname)}`);
         setIsLoading(false);
         return;
       }
