@@ -309,7 +309,7 @@ const TrendingSidebar = ({ selectedLocation = 'Vellore', onToggle, onLocationCha
   if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
-    <aside className="w-full max-w-xs min-w-[16rem] bg-black/20 text-white p-4 space-y-4 rounded-xl shadow-sm h-fit">
+    <aside className="w-full max-w-xs min-w-[16rem] bg-black/20 text-white p-4 space-y-4 rounded-xl shadow-sm h-full overflow-y-auto">
 
 
 

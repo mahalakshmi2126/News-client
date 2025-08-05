@@ -175,7 +175,7 @@ const PersonalizedNews = () => {
     </div>
 
     {/* Main + Sidebar */}
-    <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto px-2 sm:px-4 min-h-[calc(100vh-4rem)] items-start">
+    <div className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto px-2 sm:px-4 min-h-screen items-start">
       <main className="flex-1 min-w-0 self-stretch">
         <PullToRefresh onRefresh={handleRefresh}>
           <NewsFeed
@@ -189,7 +189,7 @@ const PersonalizedNews = () => {
       </main>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block lg:ml-4 w-full max-w-xs sticky top-[100px] self-start">
+      <aside className="hidden lg:block lg:ml-4 w-full max-w-xs sticky top-[100px] self-start max-h-[calc(100vh-120px)] overflow-y-auto">
         <TrendingSidebar
           selectedLocation={selectedLocation?.district || 'Chennai'}
           onToggle={toggleSidebar}
