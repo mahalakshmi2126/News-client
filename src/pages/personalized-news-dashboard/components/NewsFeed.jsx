@@ -476,7 +476,55 @@ const NewsFeed = ({ selectedCategory, refreshTrigger }) => {
   //   }
   // };
 
-  const handleShare = async (article) => {
+//   const handleShare = async (article) => {
+//   const token = localStorage.getItem('authToken');
+
+//   if (!token) {
+//     toast.warning('Please sign in to share articles');
+//     window.location.href = '/user-authentication-login-register';
+//     return;
+//   }
+
+//   try {
+//     // 1. Update backend share count
+//     await axios.patch(
+//       `${URL}/news/news/${article.id}/share`,
+//       {},
+//       { headers: { Authorization: `Bearer ${token}` } }
+//     );
+
+//     // 2. Update frontend state
+//     setArticles((prev) =>
+//       prev.map((item) =>
+//         item.id === article.id
+//           ? { ...item, shares: item.shares + 1 }
+//           : item
+//       )
+//     );
+
+//     // 3. Share link using navigator or fallback
+//     const shareUrl = `${window.location.origin}/article-reading-view?id=${article.id}`;
+
+//     if (navigator.share) {
+//       await navigator.share({
+//         title: article.headline,
+//         text: article.summary,
+//         url: shareUrl,
+//       });
+//     } else {
+//       navigator.clipboard.writeText(shareUrl);
+//       toast.info('Link copied to clipboard');
+//     }
+
+//     toast.success('Article shared and count updated!');
+//   } catch (error) {
+//     console.error('Error sharing article:', error);
+//     toast.error('Failed to share or update share count');
+//   }
+// };
+
+
+const handleShare = async (article) => {
   const token = localStorage.getItem('authToken');
 
   if (!token) {
@@ -508,8 +556,9 @@ const NewsFeed = ({ selectedCategory, refreshTrigger }) => {
     if (navigator.share) {
       await navigator.share({
         title: article.headline,
-        text: article.summary,
+        text: article.caption || article.summary || '',
         url: shareUrl,
+        // Note: navigator.share does not support images directly
       });
     } else {
       navigator.clipboard.writeText(shareUrl);
