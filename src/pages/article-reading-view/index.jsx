@@ -291,21 +291,6 @@ import { Helmet } from 'react-helmet-async';
 
 
 const URL = import.meta.env.VITE_API_BASE_URL;
-<Helmet>
-  <title>{article.title}</title>
-  <meta property="og:title" content={article.title} />
-  <meta property="og:description" content={`By ${article.author.name} · ${article.readTime} min read`} />
-  <meta property="og:image" content={article.featuredImage} />
-  <meta property="og:url" content={`${window.location.origin}/article-reading-view?id=${article.id}`} />
-  <meta property="og:type" content="article" />
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content={article.title} />
-  <meta name="twitter:description" content={`By ${article.author.name} · ${article.readTime} min read`} />
-  <meta name="twitter:image" content={article.featuredImage} />
-</Helmet>
-export default ArticleReadingView;
-
 const ArticleReadingView = () => {
   const { isAuthenticated } = useUser();
   const navigate = useNavigate();
@@ -550,6 +535,23 @@ const ArticleReadingView = () => {
   }
 
   return (
+    <>
+    {article && (
+  <Helmet>
+    <title>{article.title}</title>
+    <meta property="og:title" content={article.title} />
+    <meta property="og:description" content={`By ${article.author.name} · ${article.readTime} min read`} />
+    <meta property="og:image" content={article.featuredImage} />
+    <meta property="og:url" content={`${window.location.origin}/article-reading-view?id=${article.id}`} />
+    <meta property="og:type" content="article" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={article.title} />
+    <meta name="twitter:description" content={`By ${article.author.name} · ${article.readTime} min read`} />
+    <meta name="twitter:image" content={article.featuredImage} />
+  </Helmet>
+)}
+
     <div className="min-h-screen bg-background">
       <GlobalHeader />
       <ReadingProgressBar contentRef={contentRef} />
@@ -595,6 +597,7 @@ const ArticleReadingView = () => {
         </div>
       </main>
     </div>
+    </>
   );
 };
 

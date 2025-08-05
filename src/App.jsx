@@ -5,20 +5,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import { UserProvider } from "context/UserContext";
 import { HelmetProvider } from 'react-helmet-async';
 
-function App() {
-  return (
-    <>
-    <UserProvider>
-    <Routes />
-    <ToastContainer position="top-right" autoClose={2000} />
-    </UserProvider>
-    </>
-  );
-}
-
 const App = () => (
   <HelmetProvider>
-    {/* your existing routing logic */}
+    <UserProvider>
+      <Routes />
+      <ToastContainer position="top-right" autoClose={2000} />
+    </UserProvider>
   </HelmetProvider>
 );
+
 export default App;
