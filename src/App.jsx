@@ -3,6 +3,7 @@ import Routes from "./Routes";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
 import { UserProvider } from "context/UserContext";
+import { HelmetProvider } from 'react-helmet-async';
 
 function App() {
   return (
@@ -15,4 +16,9 @@ function App() {
   );
 }
 
+const App = () => (
+  <HelmetProvider>
+    {/* your existing routing logic */}
+  </HelmetProvider>
+);
 export default App;
