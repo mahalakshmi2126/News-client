@@ -309,6 +309,7 @@ import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 const URL = import.meta.env.VITE_API_BASE_URL;
 
+
 const NewsFeed = ({ selectedCategory, refreshTrigger }) => {
   const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -433,8 +434,6 @@ const NewsFeed = ({ selectedCategory, refreshTrigger }) => {
       toast.warning('Please sign in to share articles');
       return; // ❌ Do not navigate, do not proceed
     }
-
-    const previewUrl = `https://news-server-49oh.onrender.com/api/news/article-preview/${article.id}`;
 
     try {
       // ✅ Update share count in backend
