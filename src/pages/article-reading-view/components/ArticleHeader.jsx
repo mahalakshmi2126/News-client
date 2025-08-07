@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; 
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
+import { toast } from 'react-toastify';
 
-
-
-const ArticleHeader = ({ 
-  isCollapsed, 
-  onToggleCollapse, 
-  isBookmarked, 
+const ArticleHeader = ({
+  isCollapsed,
+  onToggleCollapse,
+  isBookmarked,
   onToggleBookmark,
   onShare,
   currentLanguage,
   availableLanguages,
   onLanguageChange,
-  article 
+  article,
 }) => {
   const navigate = useNavigate();
+  const { state } = useLocation(); // Get state to check isExternal
   const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
 
   const handleBack = () => {
@@ -24,14 +24,28 @@ const ArticleHeader = ({
   };
 
   const handleLanguageSelect = (language) => {
+    if (state?.isExternal) {
+      toast.info('Translation is not available for external articles.');
+      return;
+    }
     onLanguageChange(language);
     setShowLanguageDropdown(false);
   };
 
+  const handleBookmarkClick = () => {
+    if (state?.isExternal) {
+      toast.info('Bookmarking is not available for external articles.');
+      return;
+    }
+    onToggleBookmark();
+  };
+
   return (
-    <header className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border transition-all duration-300 ${
-      isCollapsed ? '-translate-y-full' : 'translate-y-0'
-    }`}>
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border transition-all duration-300 ${
+        isCollapsed ? '-translate-y-full' : 'translate-y-0'
+      }`}
+    >
       <div className="max-w-4xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Left Section */}
@@ -44,22 +58,19 @@ const ArticleHeader = ({
             >
               <Icon name="ArrowLeft" size={20} />
             </Button>
-            
             <Button
               variant="ghost"
               onClick={onToggleCollapse}
               className="p-2 hover:bg-surface lg:hidden"
               aria-label="Toggle header"
             >
-              <Icon name={isCollapsed ? "ChevronDown" : "ChevronUp"} size={20} />
+              <Icon name={isCollapsed ? 'ChevronDown' : 'ChevronUp'} size={20} />
             </Button>
           </div>
 
           {/* Center Section - Article Title (Desktop) */}
           <div className="hidden md:block flex-1 mx-6">
-            <h1 className="text-sm font-medium text-text-primary truncate">
-              {article?.title}
-            </h1>
+            <h1 className="text-sm font-medium text-text-primary truncate">{article?.title}</h1>
           </div>
 
           {/* Right Section */}
@@ -74,7 +85,6 @@ const ArticleHeader = ({
               >
                 <Icon name="Languages" size={20} />
               </Button>
-              
               {showLanguageDropdown && (
                 <div className="absolute right-0 top-full mt-2 w-48 bg-background border border-border rounded-lg shadow-modal z-10">
                   <div className="py-2">
@@ -83,7 +93,9 @@ const ArticleHeader = ({
                         key={language.code}
                         onClick={() => handleLanguageSelect(language)}
                         className={`w-full flex items-center space-x-3 px-3 py-2 text-left hover:bg-surface transition-colors duration-150 ${
-                          currentLanguage.code === language.code ? 'bg-surface text-accent' : 'text-text-primary'
+                          currentLanguage.code === language.code
+                            ? 'bg-surface text-accent'
+                            : 'text-text-primary'
                         }`}
                       >
                         <span className="text-base">{language.flag}</span>
@@ -101,11 +113,11 @@ const ArticleHeader = ({
             {/* Bookmark Button */}
             <Button
               variant="ghost"
-              onClick={onToggleBookmark}
+              onClick={handleBookmarkClick}
               className={`p-2 hover:bg-surface ${isBookmarked ? 'text-accent' : 'text-text-secondary'}`}
-              aria-label={isBookmarked ? "Remove bookmark" : "Add bookmark"}
+              aria-label={isBookmarked ? 'Remove bookmark' : 'Add bookmark'}
             >
-              <Icon name={isBookmarked ? "Bookmark" : "BookmarkPlus"} size={20} />
+              <Icon name={isBookmarked ? 'Bookmark' : 'BookmarkPlus'} size={20} />
             </Button>
 
             {/* Share Button */}

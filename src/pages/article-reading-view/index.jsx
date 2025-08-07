@@ -1,282 +1,5 @@
-// import React, { useState, useEffect, useRef } from 'react';
-// import { useSearchParams } from 'react-router-dom';
-// import axios from 'axios';
-// import { toast } from 'react-toastify';
-// import GlobalHeader from '../../components/ui/GlobalHeader';
-// import ArticleHeader from './components/ArticleHeader';
-// import ReadingProgressBar from './components/ReadingProgressBar';
-// import ArticleContent from './components/ArticleContent';
-// // import SocialSharingPanel from './components/SocialSharingPanel';
-// import RelatedArticlesCarousel from './components/RelatedArticlesCarousel';
-// import CommentSection from './components/CommentSection';
-// import DesktopSidebar from './components/DesktopSidebar';
-
-// const URL = import.meta.env.VITE_API_BASE_URL;
-
-// const ArticleReadingView = () => {
-//   const [searchParams] = useSearchParams();
-//   const articleId = searchParams.get('id');
-//   const [article, setArticle] = useState(null);
-//   const [relatedArticles, setRelatedArticles] = useState([]);
-//   const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
-//   const [isBookmarked, setIsBookmarked] = useState(false);
-//   const [isSharingPanelOpen, setIsSharingPanelOpen] = useState(false);
-//   const [currentLanguage] = useState({ code: 'en', name: 'English', flag: '🇺🇸' });
-//   const [articleRating, setArticleRating] = useState({ average: 4.2, count: 156 });
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [comments, setComments] = useState([]);
-//   const contentRef = useRef(null);
-
-//   useEffect(() => {
-//     const fetchComments = async () => {
-//       try {
-//         const res = await axios.get(`${URL}/comments/${articleId}`);
-//         setComments(res.data.comments || []);
-//       } catch (err) {
-//         console.error('Error fetching comments:', err);
-//         toast.error('Failed to load comments');
-//       }
-//     };
-
-//     if (articleId) fetchComments();
-//   }, [articleId]);
-
-//   useEffect(() => {
-//     const fetchArticleAndRelated = async () => {
-//       if (!articleId) {
-//         toast.error('No article ID provided');
-//         setIsLoading(false);
-//         return;
-//       }
-
-//       setIsLoading(true);
-//       try {
-//         const articleResponse = await axios.get(`${URL}/news/news/${articleId}`);
-//         const articleData = articleResponse.data;
-
-//         setArticle({
-//           id: articleData._id,
-//           title: articleData.title || 'No Title',
-//           content: `<p>${articleData.content || 'No Content'}</p>`,
-//           category: articleData.category || 'general',
-//           tags: articleData.tags || [],
-//           views: articleData.views || 0,
-//           comments: articleData.comments || 0,
-//           shares: articleData.shares || 0,
-//           readTime: articleData.readTime || 0,
-//           isBookmarked: articleData.isBookmarked || false,
-//           featuredImage: articleData.media?.[0] || 'https://via.placeholder.com/800x600',
-//           author: {
-//             name: articleData.reporter?.name || 'Unknown Author',
-//             avatar: 'https://via.placeholder.com/32x32',
-//           },
-//           publishedAt: articleData.createdAt || new Date().toISOString(),
-//         });
-//         setIsBookmarked(articleData.isBookmarked || false);
-
-//         const response = await axios.get(`${URL}/news/public`);
-//         const fetchedArticles = await Promise.all(
-//           response.data
-//             .filter((item) => {
-//               if (item._id === articleId) return false;
-//               const hasMatchingCategory = item.category === articleData.category;
-//               const hasMatchingTag = item.tags?.some((tag) => articleData.tags?.includes(tag));
-//               return hasMatchingCategory || hasMatchingTag;
-//             })
-//             .map(async (item) => {
-//               let reporterName = item.reporter?.name || 'Unknown Author';
-//               if (typeof item.reporter === 'string') {
-//                 try {
-//                   const reporterResponse = await axios.get(
-//                     `${URL}/reporters/${item.reporter}`
-//                   );
-//                   reporterName = reporterResponse.data.name || 'Unknown Author';
-//                 } catch (error) {
-//                   console.error(`Failed to fetch reporter for ID ${item.reporter}:`, error);
-//                 }
-//               }
-//               return {
-//                 id: item._id,
-//                 title: item.title || 'No Title',
-//                 content: item.content || '',
-//                 category: item.category || 'general',
-//                 featuredImage: item.media?.[0] || 'https://via.placeholder.com/400x300',
-//                 author: {
-//                   name: reporterName,
-//                   avatar: 'https://via.placeholder.com/32x32',
-//                 },
-//                 publishedAt: item.createdAt || new Date().toISOString(),
-//               };
-//             })
-//         );
-
-//         setRelatedArticles(fetchedArticles.slice(0, 6));
-//       } catch (error) {
-//         console.error('Fetch error:', error.response?.status, error.response?.data);
-//         toast.error(error?.response?.data?.message || 'Failed to load article or related articles.');
-//       } finally {
-//         setIsLoading(false);
-//       }
-//     };
-
-//     fetchArticleAndRelated();
-//   }, [articleId]);
-
-//   useEffect(() => {
-//     let lastScrollY = window.scrollY;
-//     const handleScroll = () => {
-//       const currentScrollY = window.scrollY;
-//       setIsHeaderCollapsed(currentScrollY > lastScrollY && currentScrollY > 100);
-//       lastScrollY = currentScrollY;
-//     };
-
-//     window.addEventListener('scroll', handleScroll, { passive: true });
-//     return () => window.removeEventListener('scroll', handleScroll);
-//   }, []);
-
-//   const handleToggleBookmark = async (articleId, newBookmarkState) => {
-//     setIsBookmarked(newBookmarkState);
-//     try {
-//       const token = localStorage.getItem('token');
-//       await axios.put(
-//         `${URL}/news/news/${articleId}`,
-//         { isBookmarked: newBookmarkState },
-//         token ? { headers: { Authorization: `Bearer ${token}` } } : {}
-//       );
-//     } catch (error) {
-//       console.error('Bookmark error:', error.response?.status, error.response?.data);
-//       setIsBookmarked(!newBookmarkState);
-//     }
-//   };
-
-//   const handleShare = async (article) => {
-//     try {
-//       const token = localStorage.getItem('authToken');
-//       await axios.patch(
-//         `${URL}/news/news/${article.id}/share`,
-//         {},
-//         { headers: { Authorization: `Bearer ${token}` } }
-//       );
-
-//       setArticle((prev) => ({
-//         ...prev,
-//         shares: prev.shares + 1,
-//       }));
-
-//       if (navigator.share) {
-//         await navigator.share({
-//           title: article.title,
-//           text: article.content.replace(/<[^>]+>/g, ''),
-//           url: `${window.location.origin}/article-reading-view?id=${article.id}`,
-//         });
-//       } else {
-//         navigator.clipboard.writeText(`${window.location.origin}/article-reading-view?id=${article.id}`);
-//         toast.info('Link copied to clipboard');
-//       }
-
-//       toast.success('Article shared and count updated!');
-//     } catch (error) {
-//       console.error('Error sharing article:', error);
-//       toast.error('Failed to share or update share count');
-//     }
-//     setIsSharingPanelOpen(!isSharingPanelOpen);
-//   };
-
-//   // const handleRateArticle = (rating) => {
-//   //   setArticleRating((prev) => ({
-//   //     average: (prev.average * prev.count + rating) / (prev.count + 1),
-//   //     count: prev.count + 1,
-//   //   }));
-//   // };
-
-//   // const handleToggleAudio = () => {
-//   //   toast.info('Audio playback not implemented');
-//   // };
-
-//   if (isLoading) {
-//     return (
-//       <div className="min-h-screen bg-background">
-//         <GlobalHeader />
-//         <div className="max-w-4xl mx-auto px-4 py-8">
-//           <div className="animate-pulse">
-//             <div className="h-12 bg-surface rounded mb-6"></div>
-//             <div className="h-64 bg-surface rounded mb-8"></div>
-//             <div className="space-y-4">
-//               {[...Array(5)].map((_, i) => (
-//                 <div key={i} className="h-4 bg-surface rounded w-full"></div>
-//               ))}
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   if (!article) {
-//     return (
-//       <div className="min-h-screen bg-background">
-//         <GlobalHeader />
-//         <div className="max-w-4xl mx-auto px-4 py-8 text-center">
-//           <h2 className="text-2xl font-bold text-text-primary mb-4">Article Not Found</h2>
-//           <p className="text-text-secondary">The requested article could not be loaded. Please try again later.</p>
-//         </div>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div className="min-h-screen bg-background">
-//       <GlobalHeader />
-//       <ReadingProgressBar contentRef={contentRef} />
-//       <ArticleHeader
-//         isCollapsed={isHeaderCollapsed}
-//         onToggleCollapse={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
-//         isBookmarked={isBookmarked}
-//         onToggleBookmark={handleToggleBookmark}
-//         onShare={handleShare}
-//         currentLanguage={currentLanguage}
-//         availableLanguages={[{ code: 'en', name: 'English', flag: '🇺🇸' }]}
-//         onLanguageChange={() => toast.info('Translations not available')}
-//         article={article}
-//       />
-//       <main className="pt-16" ref={contentRef}>
-//         <div className="max-w-7xl mx-auto flex">
-//           <div className="flex-1 xl:mr-96">
-//             <ArticleContent
-//               article={article}
-//               currentLanguage={currentLanguage}
-//               isTranslating={false}
-//               onBookmark={handleToggleBookmark}
-//               onShare={handleShare}
-//             />
-//             <RelatedArticlesCarousel
-//               articles={relatedArticles}
-//               currentArticleId={article.id}
-//               category={article.category}
-//               tags={article.tags}
-//             />
-//             <CommentSection articleId={article.id} comments={comments} />
-//           </div>
-//           <DesktopSidebar
-//             article={article}
-//             relatedArticles={relatedArticles}
-//           />
-//         </div>
-//       </main>
-//       {/* <SocialSharingPanel
-//         article={article}
-//         isOpen={isSharingPanelOpen}
-//         onToggle={() => setIsSharingPanelOpen(!isSharingPanelOpen)}
-//       /> */}
-//     </div>
-//   );
-// };
-
-// export default ArticleReadingView;
-
-
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import GlobalHeader from '../../components/ui/GlobalHeader';
@@ -289,11 +12,12 @@ import DesktopSidebar from './components/DesktopSidebar';
 import { useUser } from '../../context/UserContext';
 import { Helmet } from 'react-helmet-async';
 
-
 const URL = import.meta.env.VITE_API_BASE_URL;
+
 const ArticleReadingView = () => {
   const { isAuthenticated } = useUser();
   const navigate = useNavigate();
+  const { state } = useLocation(); // Get state from navigation
   const [searchParams] = useSearchParams();
   const articleId = searchParams.get('id');
   const [article, setArticle] = useState(null);
@@ -309,88 +33,115 @@ const ArticleReadingView = () => {
 
   useEffect(() => {
     const fetchComments = async () => {
-      try {
-        const res = await axios.get(`${URL}/comments/${articleId}`);
-        setComments(res.data.comments || []);
-      } catch (err) {
-        console.error('Error fetching comments:', err);
-        toast.error('Failed to load comments');
+      if (!state?.isExternal) { // Only fetch comments for internal articles
+        try {
+          const res = await axios.get(`${URL}/comments/${articleId}`);
+          setComments(res.data.comments || []);
+        } catch (err) {
+          console.error('Error fetching comments:', err);
+          toast.error('Failed to load comments');
+        }
+      } else {
+        setComments([]); // No comments for external articles
       }
     };
 
-    if (articleId) fetchComments();
-  }, [articleId]);
+    if (articleId || state?.isExternal) fetchComments();
+  }, [articleId, state]);
 
   useEffect(() => {
     const fetchArticleAndRelated = async () => {
-      if (!articleId) {
-        toast.error('No article ID provided');
-        setIsLoading(false);
-        return;
-      }
-
       setIsLoading(true);
       try {
-        const articleResponse = await axios.get(`${URL}/news/news/${articleId}`);
-        const articleData = articleResponse.data;
+        if (state?.isExternal && state?.article) {
+          // Handle external (API-fetched) article
+          const externalArticle = state.article;
+          setArticle({
+            id: externalArticle.id,
+            title: externalArticle.headline,
+            content: `<p>${externalArticle.summary || 'No Content'}</p>`,
+            category: externalArticle.category || 'general',
+            tags: [], // External articles may not have tags
+            views: externalArticle.views || 0,
+            comments: externalArticle.comments || 0,
+            shares: externalArticle.shares || 0,
+            readTime: externalArticle.readingTime || 3,
+            isBookmarked: externalArticle.isBookmarked || false,
+            featuredImage: externalArticle.imageUrl || 'https://via.placeholder.com/800x600',
+            author: externalArticle.author || {
+              name: 'Unknown Author',
+              avatar: 'https://via.placeholder.com/32x32',
+            },
+            publishedAt: externalArticle.publishedAt || new Date().toISOString(),
+            sourceUrl: externalArticle.sourceUrl, // Keep source URL for reference
+          });
+          setIsBookmarked(externalArticle.isBookmarked || false);
+          setRelatedArticles([]); // No related articles for external articles (or fetch if needed)
+        } else if (articleId) {
+          // Handle internal (user-posted) article
+          const articleResponse = await axios.get(`${URL}/news/news/${articleId}`);
+          const articleData = articleResponse.data;
 
-        setArticle({
-          id: articleData._id,
-          title: articleData.title || 'No Title',
-          content: `<p>${articleData.content || 'No Content'}</p>`,
-          category: articleData.category || 'general',
-          tags: articleData.tags || [],
-          views: articleData.views || 0,
-          comments: articleData.comments || 0,
-          shares: articleData.shares || 0,
-          readTime: articleData.readTime || 0,
-          isBookmarked: articleData.isBookmarked || false,
-          featuredImage: articleData.media?.[0] || 'https://via.placeholder.com/800x600',
-          author: {
-            name: articleData.reporter?.name || 'Unknown Author',
-            avatar: 'https://via.placeholder.com/32x32',
-          },
-          publishedAt: articleData.createdAt || new Date().toISOString(),
-        });
-        setIsBookmarked(articleData.isBookmarked || false);
+          setArticle({
+            id: articleData._id,
+            title: articleData.title || 'No Title',
+            content: `<p>${articleData.content || 'No Content'}</p>`,
+            category: articleData.category || 'general',
+            tags: articleData.tags || [],
+            views: articleData.views || 0,
+            comments: articleData.comments || 0,
+            shares: articleData.shares || 0,
+            readTime: articleData.readTime || 0,
+            isBookmarked: articleData.isBookmarked || false,
+            featuredImage: articleData.media?.[0] || 'https://via.placeholder.com/800x600',
+            author: {
+              name: articleData.reporter?.name || 'Unknown Author',
+              avatar: 'https://via.placeholder.com/32x32',
+            },
+            publishedAt: articleData.createdAt || new Date().toISOString(),
+          });
+          setIsBookmarked(articleData.isBookmarked || false);
 
-        const response = await axios.get(`${URL}/news/public`);
-        const fetchedArticles = await Promise.all(
-          response.data
-            .filter((item) => {
-              if (item._id === articleId) return false;
-              const hasMatchingCategory = item.category === articleData.category;
-              const hasMatchingTag = item.tags?.some((tag) => articleData.tags?.includes(tag));
-              return hasMatchingCategory || hasMatchingTag;
-            })
-            .map(async (item) => {
-              let reporterName = item.reporter?.name || 'Unknown Author';
-              if (typeof item.reporter === 'string') {
-                try {
-                  const reporterResponse = await axios.get(
-                    `${URL}/reporters/${item.reporter}`
-                  );
-                  reporterName = reporterResponse.data.name || 'Unknown Author';
-                } catch (error) {
-                  console.error(`Failed to fetch reporter for ID ${item.reporter}:`, error);
+          const response = await axios.get(`${URL}/news/public`);
+          const fetchedArticles = await Promise.all(
+            response.data
+              .filter((item) => {
+                if (item._id === articleId) return false;
+                const hasMatchingCategory = item.category === articleData.category;
+                const hasMatchingTag = item.tags?.some((tag) => articleData.tags?.includes(tag));
+                return hasMatchingCategory || hasMatchingTag;
+              })
+              .map(async (item) => {
+                let reporterName = item.reporter?.name || 'Unknown Author';
+                if (typeof item.reporter === 'string') {
+                  try {
+                    const reporterResponse = await axios.get(
+                      `${URL}/reporters/${item.reporter}`
+                    );
+                    reporterName = reporterResponse.data.name || 'Unknown Author';
+                  } catch (error) {
+                    console.error(`Failed to fetch reporter for ID ${item.reporter}:`, error);
+                  }
                 }
-              }
-              return {
-                id: item._id,
-                title: item.title || 'No Title',
-                content: item.content || '',
-                category: item.category || 'general',
-                featuredImage: item.media?.[0] || 'https://via.placeholder.com/400x300',
-                author: {
-                  name: reporterName,
-                  avatar: 'https://via.placeholder.com/32x32',
-                },
-                publishedAt: item.createdAt || new Date().toISOString(),
-              };
-            })
-        );
+                return {
+                  id: item._id,
+                  title: item.title || 'No Title',
+                  content: item.content || '',
+                  category: item.category || 'general',
+                  featuredImage: item.media?.[0] || 'https://via.placeholder.com/400x300',
+                  author: {
+                    name: reporterName,
+                    avatar: 'https://via.placeholder.com/32x32',
+                  },
+                  publishedAt: item.createdAt || new Date().toISOString(),
+                };
+              })
+          );
 
-        setRelatedArticles(fetchedArticles.slice(0, 6));
+          setRelatedArticles(fetchedArticles.slice(0, 6));
+        } else {
+          toast.error('No article ID or external article provided');
+        }
       } catch (error) {
         console.error('Fetch error:', error.response?.status, error.response?.data);
         toast.error(error?.response?.data?.message || 'Failed to load article or related articles.');
@@ -400,7 +151,7 @@ const ArticleReadingView = () => {
     };
 
     fetchArticleAndRelated();
-  }, [articleId]);
+  }, [articleId, state]);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -415,6 +166,10 @@ const ArticleReadingView = () => {
   }, []);
 
   const handleToggleBookmark = async (articleId, newBookmarkState) => {
+    if (state?.isExternal) {
+      toast.info('Bookmarking is not available for external articles.');
+      return;
+    }
     if (!isAuthenticated) {
       toast.warning('Please sign in to bookmark articles');
       navigate('/user-authentication-login-register');
@@ -443,38 +198,49 @@ const ArticleReadingView = () => {
     }
     try {
       const token = localStorage.getItem('authToken');
-      await axios.patch(
-        `${URL}/news/news/${article.id}/share`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      if (!state?.isExternal) {
+        // Update share count for internal articles
+        await axios.patch(
+          `${URL}/news/news/${article.id}/share`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-      setArticle((prev) => ({
-        ...prev,
-        shares: prev.shares + 1,
-      }));
+        setArticle((prev) => ({
+          ...prev,
+          shares: prev.shares + 1,
+        }));
+      }
 
       if (navigator.share) {
         await navigator.share({
           title: article.title,
           text: article.content.replace(/<[^>]+>/g, ''),
-          url: `${window.location.origin}/article-reading-view?id=${article.id}`,
+          url: state?.isExternal
+            ? article.sourceUrl
+            : `${window.location.origin}/article-reading-view?id=${article.id}`,
         });
       } else {
-        navigator.clipboard.writeText(`${window.location.origin}/article-reading-view?id=${article.id}`);
+        const shareUrl = state?.isExternal
+          ? article.sourceUrl
+          : `${window.location.origin}/article-reading-view?id=${article.id}`;
+        navigator.clipboard.writeText(shareUrl);
         toast.info('Link copied to clipboard');
       }
 
-      toast.success('Article shared and count updated!');
+      toast.success('Article shared!');
     } catch (error) {
       console.error('Error sharing article:', error);
-      toast.error('Failed to share or update share count');
+      toast.error('Failed to share article');
     }
     setIsSharingPanelOpen(!isSharingPanelOpen);
   };
 
   const handleRateArticle = (rating) => {
-    // Allow rating for all users
+    if (state?.isExternal) {
+      toast.info('Rating is not available for external articles.');
+      return;
+    }
     setArticleRating((prev) => ({
       average: (prev.average * prev.count + rating) / (prev.count + 1),
       count: prev.count + 1,
@@ -483,6 +249,10 @@ const ArticleReadingView = () => {
   };
 
   const handleCommentSubmit = async (comment) => {
+    if (state?.isExternal) {
+      toast.info('Commenting is not available for external articles.');
+      return;
+    }
     if (!isAuthenticated) {
       toast.warning('Please sign in to comment on articles');
       navigate('/user-authentication-login-register');
@@ -536,67 +306,76 @@ const ArticleReadingView = () => {
 
   return (
     <>
-    {article && (
-  <Helmet>
-    <title>{article.title}</title>
-    <meta property="og:title" content={article.title} />
-    <meta property="og:description" content={`By ${article.author.name} · ${article.readTime} min read`} />
-    <meta property="og:image" content={article.featuredImage} />
-    <meta property="og:url" content={`${window.location.origin}/article-reading-view?id=${article.id}`} />
-    <meta property="og:type" content="article" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={article.title} />
-    <meta name="twitter:description" content={`By ${article.author.name} · ${article.readTime} min read`} />
-    <meta name="twitter:image" content={article.featuredImage} />
-  </Helmet>
-)}
-
-    <div className="min-h-screen bg-background">
-      <GlobalHeader />
-      <ReadingProgressBar contentRef={contentRef} />
-      <ArticleHeader
-        isCollapsed={isHeaderCollapsed}
-        onToggleCollapse={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
-        isBookmarked={isBookmarked}
-        onToggleBookmark={handleToggleBookmark}
-        onShare={handleShare}
-        currentLanguage={currentLanguage}
-        availableLanguages={[{ code: 'en', name: 'English', flag: '🇺🇸' }]}
-        onLanguageChange={() => toast.info('Translations not available')}
-        article={article}
-        onRate={handleRateArticle}
-      />
-      <main className="pt-16" ref={contentRef}>
-        <div className="max-w-7xl mx-auto flex">
-          <div className="flex-1 xl:mr-96">
-            <ArticleContent
-              article={article}
-              currentLanguage={currentLanguage}
-              isTranslating={false}
-              onBookmark={handleToggleBookmark}
-              onShare={handleShare}
-              onRate={handleRateArticle}
-            />
-            <RelatedArticlesCarousel
-              articles={relatedArticles}
-              currentArticleId={article.id}
-              category={article.category}
-              tags={article.tags}
-            />
-            <CommentSection
-              articleId={article.id}
-              comments={comments}
-              onCommentSubmit={handleCommentSubmit}
-            />
-          </div>
-          <DesktopSidebar
-            article={article}
-            relatedArticles={relatedArticles}
+      {article && (
+        <Helmet>
+          <title>{article.title}</title>
+          <meta property="og:title" content={article.title} />
+          <meta
+            property="og:description"
+            content={`By ${article.author.name} · ${article.readTime} min read`}
           />
-        </div>
-      </main>
-    </div>
+          <meta property="og:image" content={article.featuredImage} />
+          <meta
+            property="og:url"
+            content={
+              state?.isExternal
+                ? article.sourceUrl
+                : `${window.location.origin}/article-reading-view?id=${article.id}`
+            }
+          />
+          <meta property="og:type" content="article" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content={article.title} />
+          <meta
+            name="twitter:description"
+            content={`By ${article.author.name} · ${article.readTime} min read`}
+          />
+          <meta name="twitter:image" content={article.featuredImage} />
+        </Helmet>
+      )}
+
+      <div className="min-h-screen bg-background">
+        <GlobalHeader />
+        <ReadingProgressBar contentRef={contentRef} />
+        <ArticleHeader
+          isCollapsed={isHeaderCollapsed}
+          onToggleCollapse={() => setIsHeaderCollapsed(!isHeaderCollapsed)}
+          isBookmarked={isBookmarked}
+          onToggleBookmark={() => handleToggleBookmark(article.id, !isBookmarked)}
+          onShare={() => handleShare(article)}
+          currentLanguage={currentLanguage}
+          availableLanguages={[{ code: 'en', name: 'English', flag: '🇺🇸' }]}
+          onLanguageChange={() => toast.info('Translations not available')}
+          article={article}
+          onRate={handleRateArticle}
+        />
+        <main className="pt-16" ref={contentRef}>
+          <div className="max-w-7xl mx-auto flex">
+            <div className="flex-1 xl:mr-96">
+              <ArticleContent
+                article={article}
+                currentLanguage={currentLanguage}
+                isTranslating={false}
+                onBookmark={handleToggleBookmark}
+                onShare={handleShare}
+                onRate={handleRateArticle}
+              />
+              <RelatedArticlesCarousel
+                articles={relatedArticles}
+                currentArticleId={article.id}
+                category={article.category}
+                tags={article.tags}
+              />
+              <CommentSection
+                articleId={article.id}
+                comments={comments}
+                onCommentSubmit={handleCommentSubmit}
+              />
+            </div>
+            <DesktopSidebar article={article} relatedArticles={relatedArticles} />
+          </div>
+        </main>
+      </div>
     </>
   );
 };

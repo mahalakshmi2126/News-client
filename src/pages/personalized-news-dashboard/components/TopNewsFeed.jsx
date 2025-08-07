@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // Add useNavigate
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Icon from '../../../components/AppIcon';
 const URL = import.meta.env.VITE_API_BASE_URL;
+
 const TopNewsFeed = ({ refreshTrigger }) => {
   const [topArticles, setTopArticles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate(); // Initialize useNavigate
 
   const getImageUrl = (description, channel, article) => {
     if (article?.urlToImage) return article.urlToImage;
@@ -19,7 +22,6 @@ const TopNewsFeed = ({ refreshTrigger }) => {
     return imgMatch ? imgMatch[1] : getDefaultImage(channel);
   };
 
-
   const getDefaultImage = (channel) => {
     const channelDefaults = {
       'NDTV': 'https://www.ndtv.com/common/header/images/ndtv_logo_black.gif',
@@ -32,9 +34,8 @@ const TopNewsFeed = ({ refreshTrigger }) => {
       'Business Standard': 'https://images.news18.com/static_news18/pix/ibnhome/news18/news18-logo-xmln.png',
       'Moneycontrol': 'https://img-d02.moneycontrol.co.in/images/top2010/moneycontrol_logo.jpg',
       'News18 India': 'https://images.news18.com/static_news18/pix/ibnhome/news18/news18-logo-xmln.png',
-      // 'default': 'https://images.news18.com/static_news18/pix/ibnhome/news18/news18-logo-xmln.png',
     };
-    return channelDefaults[channel] || channelDefaults['default'];
+    return channelDefaults[channel] || 'https://placehold.co/800x600?text=No+Image';
   };
 
   const isVideoMedia = () => false;
@@ -42,12 +43,19 @@ const TopNewsFeed = ({ refreshTrigger }) => {
   const getThumbnailUrl = (description, channel, article) =>
     getImageUrl(description, channel, article);
 
-
   const calculateReadingTime = (content) => {
     if (!content) return 3;
     const words = content.split(/\s+/).length;
     return Math.ceil(words / 200) || 3;
   };
+
+  const stripHtml = (html) => {
+  if (!html || typeof html !== 'string') return '';
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.textContent || div.innerText || '';
+};
+
 
   useEffect(() => {
     const loadTopArticles = async () => {
@@ -61,14 +69,12 @@ const TopNewsFeed = ({ refreshTrigger }) => {
           throw new Error('Invalid API response: expected success and data array');
         }
 
-
         const articles = response.data.data.flatMap((channel) =>
           channel.articles.map((article) => ({
             id: article.link,
             headline: article.title || 'No Title',
-            summary: article.description || 'No Content',
-            // imageUrl: getThumbnailUrl(article.description, channel.channel, article.image) ,
-            imageUrl: getThumbnailUrl(article.description, channel.channel, article.image),
+            summary: stripHtml(article.description).trim() || 'No Content',
+            imageUrl: article.image || getDefaultImage(channel.channel),
             originalMedia: null,
             category: channel.channel || 'general',
             language: 'en',
@@ -78,12 +84,13 @@ const TopNewsFeed = ({ refreshTrigger }) => {
             readingTime: calculateReadingTime(article.description),
             isBookmarked: false,
             sourceUrl: article.link || '#',
-            image:article.image
+            author: {
+              name: channel.channel || 'Unknown Source',
+              avatar: getDefaultImage(channel.channel),
+            },
+            publishedAt: article.pubDate || new Date().toISOString(),
           }))
-        )
-
-        console.log("articles",articles);
-        
+        );
 
         setTopArticles(articles);
       } catch (error) {
@@ -108,12 +115,11 @@ const TopNewsFeed = ({ refreshTrigger }) => {
     </div>
   );
 
-  const handleCardClick = (sourceUrl) => {
-    if (sourceUrl && sourceUrl !== '#') {
-      window.open(sourceUrl, '_blank');
-    } else {
-      toast.info('No external link available for this article.');
-    }
+  const handleCardClick = (article) => {
+    // Navigate to ArticleReadingView with article data in state
+    navigate('/article-reading-view', {
+      state: { article, isExternal: true }, // Pass article data and flag
+    });
   };
 
   return (
@@ -129,22 +135,24 @@ const TopNewsFeed = ({ refreshTrigger }) => {
             <div
               key={article.id}
               className="bg-background border border-border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer w-full h-48"
-              onClick={() => handleCardClick(article.sourceUrl)}
+              onClick={() => handleCardClick(article)}
             >
               <div className="relative w-full h-28 overflow-hidden">
                 <img
-                  src={article.image}
-                  alt={(e) => { e.target.src = getDefaultImage(article); }}
+                  src={article.imageUrl}
+                  alt={article.headline}
+                  onError={(e) => {
+                    e.target.src = getDefaultImage(article.category);
+                  }}
                   className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                 />
-                
               </div>
               <div className="p-2">
                 <h3 className="text-sm sm:text-base font-semibold text-text-primary line-clamp-2">
                   {article.headline}
                 </h3>
                 <p className="text-xs text-text-secondary line-clamp-1 mt-1">
-                  {/* {article.summary} */}
+                  {article.summary}
                 </p>
               </div>
             </div>
