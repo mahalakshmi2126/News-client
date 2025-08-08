@@ -311,7 +311,7 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import GlobalHeader from '../../components/ui/GlobalHeader';
 import ProfileHeader from './components/ProfileHeader';
-import SettingsSection from './components/SettingsSection';
+// import SettingsSection from './components/SettingsSection';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 import { uploadToCloudinary } from '../reporter-dashboard/components/utils/uploadToCloudinary';
