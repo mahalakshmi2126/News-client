@@ -364,7 +364,7 @@ const UserProfileSettings = () => {
       }
     };
     checkAuth();
-  }, [navigate, isAuthenticated, refreshUserData, user, setUser]);
+  }, [navigate, isAuthenticated, refreshUserData]);
 
   const handleLogin = async (credentials) => {
     try {

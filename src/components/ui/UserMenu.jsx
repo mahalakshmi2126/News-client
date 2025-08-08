@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Icon from '../AppIcon';
@@ -60,10 +60,19 @@ const UserMenu = () => {
     setAvatarError(true);
   };
 
-  // Fallback for user initials
+  // Improved initials extraction logic
   const getInitials = () => {
     if (user.name && typeof user.name === 'string') {
-      return user.initials || user.name.slice(0, 2).toUpperCase() || 'U';
+      if (user.initials) {
+        return user.initials;
+      }
+      const initials = user.name
+        .split(' ')
+        .map((n) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+      return initials || 'U';
     }
     if (user.email && typeof user.email === 'string') {
       return user.email.slice(0, 2).toUpperCase() || 'U';
@@ -159,9 +168,9 @@ const UserMenu = () => {
             </div>
           </div>
           <div className="py-2">
-            {menuItems.map((item, index) => (
+            {menuItems.map((item) => (
               <Link
-                key={index}
+                key={item.label}
                 to={item.path}
                 onClick={closeDropdown}
                 className="flex items-center space-x-3 px-4 py-3 text-left hover:bg-surface transition-colors duration-150 group"

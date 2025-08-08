@@ -58,10 +58,10 @@ const ProfileHeader = ({ user, onUpdateProfile }) => {
               </div>
             ) : (
               <Image
-                src={user.avatar || '/assets/image/no_image.png'}
+                src={user.avatar}
                 alt={user.name || 'User'}
-                className="w-full h-full object-cover"
-                onError={() => setAvatarError(true)}
+                className="w-full h-full object-cover rounded-full"
+                onError={(e) => { e.target.onerror = null; e.target.src = '/assets/images/no_image.png'; }}
               />
             )}
           </div>
