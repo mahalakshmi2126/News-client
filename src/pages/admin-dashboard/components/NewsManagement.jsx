@@ -119,7 +119,7 @@ const NewsManagement = ({ articles, onUpdateStatus, onDelete }) => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-4 py-2 border border-input rounded-md bg-background text-base w-full sm:w-auto"
+            className="px-8 py-2 border border-input rounded-md bg-background text-base w-full sm:w-auto"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>

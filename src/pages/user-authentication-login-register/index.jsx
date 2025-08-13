@@ -333,87 +333,28 @@ const UserAuthenticationPage = () => {
     setShowForgotPassword(false);
   }, [activeTab]);
 
-  const handleLogin = async (formData) => {
-    setIsLoading(true);
-    setAuthError("");
+const handleLogin = async (formData) => {
+  setIsLoading(true);
+  setAuthError("");
 
-    try {
-      let payload;
+  try {
+    // ✅ Google Login
+    if (formData.googleCredential) {
+      const decoded = jwtDecode(formData.googleCredential.credential);
+      const googlePayload = {
+        name: decoded.name,
+        email: decoded.email,
+        picture: decoded.picture,
+      };
 
-      // Handle Google login
-      if (formData.googleCredential) {
-        const decoded = jwtDecode(formData.googleCredential.credential);
-        const payload = {
-          name: decoded.name,
-          email: decoded.email,
-          picture: decoded.picture, // இதை backendக்கு அனுப்பு
-        };
-
-        const response = await fetch(`${URL}/auth/google-login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        const data = await response.json();
-        if (!response.ok)
-          throw new Error(data.message || "Google login failed");
-
-        const userObj = {
-          id: data.user.id,
-          name: data.user.name || "User",
-          email: data.user.email || "",
-          avatar: data.user.avatar || "/assets/images/no_image.png",
-          initials:
-            data.user.initials ||
-            (data.user.name
-              ? data.user.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .toUpperCase()
-              : "U"),
-          role: data.user.role || "user",
-          bio: data.user.bio || "",
-          location: data.user.location || {
-            state: "",
-            district: "",
-            taluk: "",
-          },
-          status: data.user.status || "active",
-          isApproved: data.user.isApproved || false,
-          reporterFormSubmitted: data.user.reporterFormSubmitted || false,
-        };
-
-        setUser(userObj);
-        setIsAuthenticated(true);
-        localStorage.setItem("generalUser", JSON.stringify(userObj));
-        localStorage.setItem("authToken", data.token);
-        localStorage.setItem("role", userObj.role);
-
-        await refreshUserData(); 
-      }
-
-      // Regular email/password login
-      if (!formData.email || !formData.password) {
-        toast.error("Please enter both email and password");
-        return;
-      }
-
-      const response = await fetch(`${URL}/auth/login`, {
+      const response = await fetch(`${URL}/auth/google-login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(googlePayload),
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || "Login failed");
-
-      if (data.user.role !== "user") {
-        throw new Error(
-          "This page is for regular users only. Please use the appropriate dashboard."
-        );
-      }
+      if (!response.ok) throw new Error(data.message || "Google login failed");
 
       const { token, user } = data;
       const userObj = {
@@ -421,7 +362,7 @@ const UserAuthenticationPage = () => {
         _id: user._id,
         name: user.name || "User",
         email: user.email || "",
-        avatar: user.avatar || "/assets/images/no_image.png",
+        avatar: user.avatar || user.picture || "/assets/images/no_image.png",
         initials:
           user.initials ||
           (user.name
@@ -439,28 +380,87 @@ const UserAuthenticationPage = () => {
         reporterFormSubmitted: user.reporterFormSubmitted || false,
       };
 
-      localStorage.setItem("authToken", token);
-      localStorage.setItem("generalUser", JSON.stringify(userObj));
-      localStorage.setItem("role", userObj.role);
       setUser(userObj);
       setIsAuthenticated(true);
-      await refreshUserData();
+      localStorage.setItem("generalUser", JSON.stringify(userObj));
+      localStorage.setItem("authToken", token);
+      localStorage.setItem("role", userObj.role);
 
-      toast.success("Login Successful!");
+      await refreshUserData();
+      toast.success("Google Login Successful!");
       navigate(redirectPath, {
         state: { fromAuth: true, message: "Welcome back!" },
       });
-    } catch (error) {
-      toast.error(error.message);
-      localStorage.removeItem("authToken");
-      localStorage.removeItem("generalUser");
-      localStorage.removeItem("role");
-      setUser(null);
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
+      return; // 🚀 Google login mudinja udane stop
     }
-  };
+
+    // ✅ Regular email/password login
+    if (!formData.email || !formData.password) {
+      toast.error("Please enter both email and password");
+      return;
+    }
+
+    const response = await fetch(`${URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.message || "Login failed");
+
+    if (data.user.role !== "user") {
+      throw new Error(
+        "This page is for regular users only. Please use the appropriate dashboard."
+      );
+    }
+
+    const { token, user } = data;
+    const userObj = {
+      id: user._id,
+      _id: user._id,
+      name: user.name || "User",
+      email: user.email || "",
+      avatar: user.avatar || "/assets/images/no_image.png",
+      initials:
+        user.initials ||
+        (user.name
+          ? user.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .toUpperCase()
+          : "U"),
+      role: user.role || "user",
+      bio: user.bio || "",
+      location: user.location || { state: "", district: "", taluk: "" },
+      status: user.status || "active",
+      isApproved: user.isApproved || false,
+      reporterFormSubmitted: user.reporterFormSubmitted || false,
+    };
+
+    localStorage.setItem("authToken", token);
+    localStorage.setItem("generalUser", JSON.stringify(userObj));
+    localStorage.setItem("role", userObj.role);
+    setUser(userObj);
+    setIsAuthenticated(true);
+    await refreshUserData();
+
+    toast.success("Login Successful!");
+    navigate(redirectPath, {
+      state: { fromAuth: true, message: "Welcome back!" },
+    });
+  } catch (error) {
+    toast.error(error.message);
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("generalUser");
+    localStorage.removeItem("role");
+    setUser(null);
+    setIsAuthenticated(false);
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleRegister = async (formData) => {
     // Validate formData

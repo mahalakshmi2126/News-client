@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Icon from '../../../components/AppIcon';
 import Image from '../../../components/AppImage';
 import Button from '../../../components/ui/Button';
@@ -8,13 +8,13 @@ import { useLocation } from 'react-router-dom';
 
 const URL = import.meta.env.VITE_API_BASE_URL;
 
-const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, onShare }) => {
-  const { state } = useLocation(); // Get state to check isExternal
+const ArticleContent = ({ article, currentLanguage, onBookmark, onShare }) => {
+  const { state } = useLocation();
   const [fontSize, setFontSize] = useState('base');
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [likes, setLikes] = useState(article.likes || 0);
   const [dislikes, setDislikes] = useState(article.dislikes || 0);
-  const [userAction, setUserAction] = useState(null); // null, 'liked', or 'disliked'
+  const [userAction, setUserAction] = useState(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [reportReason, setReportReason] = useState('');
   const [reportComment, setReportComment] = useState('');
@@ -22,6 +22,21 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
   const [translatedContent, setTranslatedContent] = useState(null);
   const [isLangLoading, setIsLangLoading] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(article.isBookmarked || false);
+  const langMenuRef = useRef(null); // Ref for the dropdown
+
+  // Click-outside handler to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (langMenuRef.current && !langMenuRef.current.contains(event.target)) {
+        setShowLangMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const isVideoMedia = (mediaUrl) => {
     if (!mediaUrl || typeof mediaUrl !== 'string') return false;
@@ -186,24 +201,50 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
       toast.info('Translation is not available for external articles.');
       return;
     }
+
+    // Check pre-translated content
+    if (article.translations?.[lang]?.title && article.translations?.[lang]?.content) {
+      setTranslatedContent({
+        title: article.translations[lang].title,
+        content: article.translations[lang].content,
+      });
+      toast.success(`Switched to ${lang === 'ta' ? 'Tamil' : 'English'}!`);
+      setIsLangLoading(false);
+      setShowLangMenu(false);
+      return;
+    }
+
+    // Fallback to API call
     setIsLangLoading(true);
     setShowLangMenu(false);
     try {
       const token = localStorage.getItem('authToken');
+      if (!token) {
+        toast.error('Please sign in to translate articles');
+        setIsLangLoading(false);
+        return;
+      }
+      console.log('Sending translation request:', { articleId: article._id, targetLang: lang, token });
       const res = await axios.post(
-        `${URL}/news/${article.id}/translate`,
+        `${URL}/news/${article._id}/translate`,
         { targetLang: lang },
-        token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+        { headers: { Authorization: `Bearer ${token}` } }
       );
+      console.log('Translation response:', res.data);
       const translations = res.data.translations;
-      setTranslatedContent({
-        title: translations[lang]?.title || article.title,
-        content: translations[lang]?.content || article.content,
-      });
-      toast.success(`Translated to ${lang === 'ta' ? 'Tamil' : 'English'}!`);
+      if (translations?.[lang]?.title && translations?.[lang]?.content) {
+        setTranslatedContent({
+          title: translations[lang].title,
+          content: translations[lang].content,
+        });
+        toast.success(`Translated to ${lang === 'ta' ? 'Tamil' : 'English'}!`);
+      } else {
+        throw new Error('Invalid translation response');
+      }
     } catch (error) {
-      console.error('Translate error:', error);
-      toast.error('Failed to translate article');
+      console.error('Translate error:', error.response?.status, error.response?.data || error.message);
+      toast.error(`Failed to translate article: ${error.response?.data?.message || error.message}`);
+      setTranslatedContent(null);
     } finally {
       setIsLangLoading(false);
     }
@@ -236,7 +277,7 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
           </span>
         </div>
         <h1 className="text-3xl md:text-4xl lg:text-5xl font-heading font-bold text-text-primary mb-6 leading-tight">
-          {isTranslating ? (
+          {isLangLoading ? (
             <div className="flex items-center space-x-2">
               <div className="animate-spin w-5 h-5 border-2 border-accent border-t-transparent rounded-full"></div>
               <span>Translating...</span>
@@ -340,7 +381,7 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
         <div className="mb-6">
           <h2 className="text-lg font-semibold text-text-primary mb-2">Article Content</h2>
         </div>
-        {isTranslating ? (
+        {isLangLoading ? (
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="animate-pulse">
@@ -375,31 +416,40 @@ const ArticleContent = ({ article, currentLanguage, isTranslating, onBookmark, o
             <Icon name="ThumbsDown" size={20} />
             <span>{dislikes}</span>
           </Button>
-          <Button
-            variant="ghost"
-            onClick={() => setShowLangMenu(!showLangMenu)}
-            className="p-2 flex items-center space-x-2 text-black relative"
-            aria-label="Translate article"
-          >
-            <Icon name="Languages" size={20} />
+          <div className="relative" ref={langMenuRef}>
+            <Button
+              variant="ghost"
+              onClick={() => setShowLangMenu(!showLangMenu)}
+              className={`p-2 flex items-center space-x-2 ${isLangLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              aria-label="Translate article"
+              disabled={isLangLoading}
+            >
+              {isLangLoading ? (
+                <div className="animate-spin w-5 h-5 border-2 border-accent border-t-transparent rounded-full"></div>
+              ) : (
+                <Icon name="Languages" size={20} />
+              )}
+              <span>{isLangLoading ? 'Translating...' : 'Translate'}</span>
+            </Button>
             {showLangMenu && (
-              <div className="absolute top-10 left-0 bg-white border border-border rounded-md shadow-md z-10">
+              <div className="absolute top-12 left-0 w-40 bg-gray-700 border border-gray-700 rounded-lg shadow-lg z-10 transition-opacity duration-200">
                 <button
                   onClick={() => handleTranslate('en')}
-                  className="block px-4 py-2 w-full text-left hover:text-black"
+                  className="w-full px-4 py-2 text-left text-gray-100 hover:bg-gray-700 rounded-t-lg transition-colors duration-150"
+                  disabled={isLangLoading}
                 >
                   English
                 </button>
                 <button
                   onClick={() => handleTranslate('ta')}
-                  className="block px-4 py-2 w-full text-left hover:text-black"
+                  className="w-full px-4 py-2 text-left text-gray-100 hover:bg-gray-700 rounded-b-lg transition-colors duration-150"
+                  disabled={isLangLoading}
                 >
                   Tamil
                 </button>
               </div>
             )}
-          </Button>
-
+          </div>
           <Button
             variant="ghost"
             onClick={handleBookmark}

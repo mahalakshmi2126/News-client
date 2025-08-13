@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
+import {uploadToCloudinary} from "../components/utils/uploadToCloudinary"
 import Icon from '../../../components/AppIcon';
 import { toast } from 'react-toastify';
 const URL = import.meta.env.VITE_API_BASE_URL;
@@ -399,7 +400,7 @@ const PostNewsForm = ({ onSubmit, reporterData }) => {
                   const isImage = item?.file
                     ? item.file.type.startsWith('image/')
                     : item?.type?.includes('image');
-                  const mediaSrc = item.file ? URL.createObjectURL(item.file) : item.url;
+                  const mediaSrc = item.file ? uploadToCloudinary(item.file) : item.url;
                   return (
                     <div key={index} className="relative group">
                       <div className="aspect-square bg-surface rounded-lg flex items-center justify-center overflow-hidden">

@@ -1,407 +1,354 @@
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import Icon from '../../../components/AppIcon';
-// import ReactAnimatedWeather from 'react-animated-weather';
-// const URL = import.meta.env.VITE_API_BASE_URL;
-
-// const TrendingSidebar = ({ selectedLocation = 'Vellore', onToggle, onLocationChange }) => {
-//   const [weather, setWeather] = useState(null);
-//   const [market, setMarket] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [location, setLocation] = useState(selectedLocation);
-//   const token = localStorage.getItem('token');
-
-//   const getWeatherIcon = (condition) => {
-//     switch (condition?.toLowerCase()) {
-//       case 'clear': return 'CLEAR_DAY';
-//       case 'clouds': return 'CLOUDY';
-//       case 'rain': return 'RAIN';
-//       case 'thunderstorm': return 'RAIN';
-//       case 'snow': return 'SNOW';
-//       case 'mist':
-//       case 'haze':
-//       case 'fog': return 'FOG';
-//       default: return 'PARTLY_CLOUDY_DAY';
-//     }
-//   };
-
-//   const getWeatherAnimatedBg = (condition) => {
-//     switch (condition?.toLowerCase()) {
-//       case 'clear':
-//         return '/assets/weather/animated/clear-sky.gif';
-//       case 'clouds':
-//         return '/assets/weather/animated/cloudy.gif';
-//       case 'rain':
-//         return '/assets/weather/animated/rain.gif';
-//       case 'thunderstorm':
-//         return '/assets/weather/animated/thunderstorm.gif';
-//       case 'snow':
-//         return '/assets/weather/animated/snow.gif';
-//       case 'mist':
-//       case 'haze':
-//       case 'fog':
-//         return '/assets/weather/animated/fog.gif';
-//       default:
-//         return '/assets/weather/animated/default.gif';
-//     }
-//   };
-
-
-//   const fetchData = async (city) => {
-//     try {
-//       setLoading(true);
-//       const [weatherRes, marketRes] = await Promise.all([
-//         axios.get(`${URL}/external-apis/weather`, {
-//           params: { city },
-//           headers: { Authorization: `Bearer ${token}` },
-//         }).catch(() => ({
-//           data: {
-//             main: { temp: 25 },
-//             weather: [{ main: 'Clear', description: 'clear sky' }],
-//           },
-//         })),
-//         axios.get(`${URL}/external-apis/market`, {
-//           headers: { Authorization: `Bearer ${token}` },
-//         }).catch(() => ({
-//           data: {
-//             market: [{ symbol: 'N/A', name: 'Sample Stock', price: 100, changePct: 0.5 }],
-//           },
-//         })),
-//       ]);
-//       setWeather(weatherRes.data);
-//       setMarket(marketRes.data.market || []);
-//       setLocation(city);
-//       setLoading(false);
-//     } catch (err) {
-//       console.error('Error fetching data:', err);
-//       setError('Failed to load sidebar data');
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     if (navigator.geolocation) {
-//       navigator.geolocation.getCurrentPosition(async (position) => {
-//         const { latitude, longitude } = position.coords;
-//         try {
-//           const locationRes = await axios.get(`${URL}/external-apis/location`, {
-//             params: { lat: latitude, lon: longitude },
-//             headers: { Authorization: `Bearer ${token}` },
-//           });
-
-//           const city =
-//             locationRes.data?.address?.city ||
-//             locationRes.data?.address?.town ||
-//             locationRes.data?.address?.village ||
-//             'Vellore';
-//           fetchData(city);
-//         } catch {
-//           fetchData('Vellore');
-//         }
-//       }, () => fetchData('Vellore'));
-//     } else {
-//       fetchData('Vellore');
-//     }
-//   }, []);
-
-//   const handleRefresh = () => fetchData(location);
-//   const weatherCondition = weather?.weather?.[0]?.main || 'clear';
-//   const weatherBackground = getWeatherAnimatedBg(weatherCondition);
-
-//   if (loading) return <div className="p-4 text-white">Loading...</div>;
-//   if (error) return <div className="p-4 text-red-500">{error}</div>;
-
-//   return (
-//     <aside className="w-full max-w-xs min-w-[16rem] bg-black/20 text-white p-4 space-y-4 rounded-xl shadow-sm h-full overflow-y-auto">
-
-
-
-//       <div
-//         className="rounded-2xl overflow-hidden shadow-xl relative h-52 sm:h-56 w-full text-white"
-//         style={{
-//           backgroundImage: `url(${weatherBackground})`,
-//           backgroundSize: 'cover',
-//           backgroundPosition: 'center',
-//         }}
-//       >
-//         <div className="absolute inset-0 bg-black/30 backdrop-blur-sm z-0" />
-//         <div className="relative z-10 flex flex-col justify-between h-full p-4">
-//           <div className="flex items-center justify-between">
-//             <h2 className="text-lg font-semibold flex items-center gap-1">
-//               {location}
-//               <button onClick={handleRefresh} title="Refresh">
-//                 <svg
-//                   xmlns="http://www.w3.org/2000/svg"
-//                   className="h-4 w-4 ml-1"
-//                   fill="none"
-//                   viewBox="0 0 24 24"
-//                   stroke="currentColor"
-//                 >
-//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582M20 20v-5h-.581M4.934 19.066A9 9 0 105.318 5.318" />
-//                 </svg>
-//               </button>
-//             </h2>
-//             <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{weatherCondition}</span>
-//           </div>
-//           <div className="flex items-center gap-3">
-//             <ReactAnimatedWeather
-//               icon={getWeatherIcon(weatherCondition)}
-//               color="white"
-//               size={48}
-//               animate={true}
-//             />
-//             <div className="text-4xl font-bold">
-//               {weather?.main?.temp?.toFixed(0)}°C
-//             </div>
-//           </div>
-//           <p className="text-sm capitalize opacity-90">{weather?.weather?.[0]?.description || 'Weather details'}</p>
-//           <div className="text-xs flex items-center gap-2 mt-1">
-//             <span>📍</span>
-//             <span>Expect {weatherCondition.toLowerCase()} later today</span>
-//           </div>
-//           <button
-//             className="mt-1 text-[11px] underline text-white/90 hover:text-white"
-//             onClick={() => window.open(`https://www.msn.com/en-in/weather/forecast/in-${location.toLowerCase()}`, '_blank')}
-//           >
-//             See full forecast →
-//           </button>
-
-//         </div>
-//       </div>
-
-//       <div className="bg-[#575656] rounded-xl p-4 shadow-md">
-//         <div className="flex items-center justify-between mb-3">
-//           <h3 className="text-base font-semibold">Market</h3>
-//           <Icon name="MoreVertical" size={14} className="text-white/70" />
-//         </div>
-//         <div className="space-y-3">
-//           {market?.slice(0, 6).map((item) => {
-//             const isPositive = Number(item.changePct) >= 0;
-//             return (
-//               <div
-//                 key={item.symbol}
-//                 className="flex justify-between items-center p-3 bg-[#353434] rounded-lg"
-//               >
-//                 <div>
-//                   <h4 className="text-sm font-semibold">{item.name}</h4>
-//                   <p className="text-xs text-gray-400">{item.symbol}</p>
-//                 </div>
-//                 <div className="text-right">
-//                   <p className={`text-sm font-semibold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-//                     {Number(item.changePct).toFixed(2)}%
-//                   </p>
-//                   <p className="text-xs text-gray-400">₹{Number(item.price).toFixed(2)}</p>
-//                 </div>
-//               </div>
-//             );
-//           })}
-//         </div>
-//         <button
-//           className="w-full mt-4 text-sm text-white hover:underline text-center"
-//           onClick={() => window.open('https://finance.yahoo.com/', '_blank')}
-//         >
-//           See watchlist suggestions
-//         </button>
-//       </div>
-//     </aside>
-//   );
-// };
-
-// export default TrendingSidebar;
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Icon from '../../../components/AppIcon';
-import ReactAnimatedWeather from 'react-animated-weather';
+import { FiChevronDown, FiSearch } from 'react-icons/fi';
 
 const URL = import.meta.env.VITE_API_BASE_URL;
 
-const TrendingSidebar = ({ selectedLocation = 'Vellore', onToggle, onLocationChange }) => {
-  const [weather, setWeather] = useState(null);
+// Weather emoji mapping
+const weatherEmojiMap = {
+  rain: '🌧',
+  drizzle: '🌧',
+  thunderstorm: '⛈',
+  thunder: '⛈',
+  snow: '❄',
+  cloud: '☁',
+  partly: '⛅',
+  clear: '☀',
+  mist: '🌫',
+  haze: '🌫',
+  fog: '🌫',
+  wind: '🌬',
+};
+const getWeatherEmoji = (desc) => {
+  if (!desc) return '';
+  const key = Object.keys(weatherEmojiMap).find((k) =>
+    desc.toLowerCase().includes(k)
+  );
+  return key ? weatherEmojiMap[key] : '';
+};
+
+// Styles for glowing emoji
+const glowingEmojiStyle = {
+  color: '#00ADEF',
+  textShadow: `
+    0 0 5px #00ADEF,
+    0 0 10px #00ADEF,
+    0 0 20px #00ADEF,
+    0 0 40px #00ADEF
+  `,
+  display: 'inline-block',
+};
+
+// Animated background mapping
+const getWeatherAnimatedBg = (condition) => {
+  if (!condition) return '/assets/weather/animated/default.gif';
+  const lower = condition.toLowerCase();
+
+  if (lower.includes('clear')) return '/assets/weather/animated/clear-sky.gif';
+  if (lower.includes('cloud') || lower.includes('overcast'))
+    return '/assets/weather/animated/cloudy.gif';
+  if (lower.includes('rain') || lower.includes('drizzle'))
+    return '/assets/weather/animated/rain.gif';
+  if (lower.includes('thunder') || lower.includes('storm'))
+    return '/assets/weather/animated/thunderstorm.gif';
+  if (lower.includes('snow')) return '/assets/weather/animated/snow.gif';
+  if (lower.includes('mist') || lower.includes('haze') || lower.includes('fog'))
+    return '/assets/weather/animated/fog.gif';
+
+  return '/assets/weather/animated/default.gif';
+};
+
+// Background overlay color
+const getWeatherOverlayColor = (condition) => {
+  const lower = condition?.toLowerCase() || '';
+  if (lower.includes('clear')) return 'rgba(255, 223, 0, 0.3)';
+  if (lower.includes('cloud') || lower.includes('overcast'))
+    return 'rgba(180, 180, 180, 0.3)';
+  if (lower.includes('rain') || lower.includes('drizzle'))
+    return 'rgba(0, 102, 204, 0.3)';
+  if (lower.includes('thunder') || lower.includes('storm'))
+    return 'rgba(102, 51, 153, 0.3)';
+  if (lower.includes('snow')) return 'rgba(255, 255, 255, 0.4)';
+  if (lower.includes('mist') || lower.includes('haze') || lower.includes('fog'))
+    return 'rgba(169, 169, 169, 0.3)';
+
+  return 'rgba(0, 0, 0, 0.2)';
+};
+
+// Special rainy days message
+const getRainyDaysMessage = (forecast) => {
+  let count = 0;
+  for (let i = 0; i < forecast.length; i++) {
+    if (forecast[i].description.toLowerCase().includes('rain')) {
+      count++;
+    } else break;
+  }
+  return count >= 2
+    ? `Expect ${count} rainy days ahead starting Today.`
+    : null;
+};
+
+const TrendingSidebar = () => {
+  const [location, setLocation] = useState('');
+  const [weatherData, setWeatherData] = useState(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [weatherError, setWeatherError] = useState('');
+  const [editingLocation, setEditingLocation] = useState(false);
+  const [bgImage, setBgImage] = useState(getWeatherAnimatedBg('default'));
+  const [overlayColor, setOverlayColor] = useState(getWeatherOverlayColor('default'));
+
   const [market, setMarket] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [location, setLocation] = useState(selectedLocation);
+  const [marketLoading, setMarketLoading] = useState(true);
+  const [marketError, setMarketError] = useState(null);
+
   const token = localStorage.getItem('token');
 
-  const getWeatherIcon = (condition) => {
-    switch (condition?.toLowerCase()) {
-      case 'clear': return 'CLEAR_DAY';
-      case 'clouds': return 'CLOUDY';
-      case 'rain':
-      case 'thunderstorm': return 'RAIN';
-      case 'snow': return 'SNOW';
-      case 'mist':
-      case 'haze':
-      case 'fog': return 'FOG';
-      default: return 'PARTLY_CLOUDY_DAY';
-    }
-  };
-
-  const getWeatherAnimatedBg = (condition) => {
-    switch (condition?.toLowerCase()) {
-      case 'clear': return '/assets/weather/animated/clear-sky.gif';
-      case 'clouds': return '/assets/weather/animated/cloudy.gif';
-      case 'rain': return '/assets/weather/animated/rain.gif';
-      case 'thunderstorm': return '/assets/weather/animated/thunderstorm.gif';
-      case 'snow': return '/assets/weather/animated/snow.gif';
-      case 'mist':
-      case 'haze':
-      case 'fog': return '/assets/weather/animated/fog.gif';
-      default: return '/assets/weather/animated/default.gif';
-    }
-  };
-
-  const fetchData = async (city) => {
+  // Fetch weather by location string or lat,lng
+  const fetchWeather = async (loc) => {
+    if (!loc.trim()) return;
+    setWeatherLoading(true);
+    setWeatherError('');
     try {
-      setLoading(true);
+      const res = await axios.get(
+        `${URL}/external-apis/weather?location=${encodeURIComponent(loc)}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-      const [weatherRes, marketRes] = await Promise.all([
-        axios.get(`${URL}/weather/city`, {
-          params: { city },
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(() => ({
-          data: {
-            temp: 25,
-            weather: [{ main: 'Clear', description: 'clear sky' }],
-          },
-        })),
-        axios.get(`${URL}/external-apis/market`, {
-          headers: { Authorization: `Bearer ${token}` },
-        }).catch(() => ({
-          data: {
-            market: [{ symbol: 'N/A', name: 'Sample Stock', price: 100, changePct: 0.5 }],
-          },
-        })),
-      ]);
+      setWeatherData(res.data);
+      setLocation(res.data.location);
 
-      setWeather(weatherRes.data);
-      setMarket(marketRes.data.market || []);
-      setLocation(city);
-      setLoading(false);
+      const condition = res.data.currentWeather.description;
+      setBgImage(getWeatherAnimatedBg(condition));
+      setOverlayColor(getWeatherOverlayColor(condition));
+
+      setEditingLocation(false);
     } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to load sidebar data');
-      setLoading(false);
+      setWeatherError(err.response?.data?.error || 'Failed to fetch weather');
+    } finally {
+      setWeatherLoading(false);
     }
   };
 
+  // Fetch stock market data
+  const fetchMarketData = async () => {
+    try {
+      setMarketLoading(true);
+      const marketRes = await axios
+        .get(`${URL}/external-apis/market`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .catch(() => ({
+          data: {
+            market: [
+              { symbol: 'N/A', name: 'Sample Stock', price: 100, changePct: 0.5 },
+            ],
+          },
+        }));
+      setMarket(marketRes.data.market || []);
+    } catch (err) {
+      console.error('Error fetching market data:', err);
+      setMarketError('Failed to load market data');
+    } finally {
+      setMarketLoading(false);
+    }
+  };
+
+  // On mount: Try geolocation first, otherwise wait for user input
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(async (position) => {
-        const { latitude, longitude } = position.coords;
-        try {
-          const locationRes = await axios.get(`${URL}/weather/coordinates`, {
-            params: { lat: latitude, lon: longitude },
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          const city =
-            locationRes.data?.location?.city ||
-            locationRes.data?.location?.town ||
-            locationRes.data?.location?.village ||
-            'Vellore';
-
-          fetchData(city);
-        } catch (err) {
-          console.error('Location fetch failed:', err);
-          fetchData('Vellore');
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const { latitude, longitude } = pos.coords;
+          await fetchWeather(`${latitude},${longitude}`);
+        },
+        () => {
+          console.warn('User denied location access. Please search manually.');
         }
-      }, () => fetchData('Vellore'));
-    } else {
-      fetchData('Vellore');
+      );
     }
+    fetchMarketData();
   }, []);
 
-  const handleRefresh = () => fetchData(location);
-  const weatherCondition = weather?.condition || 'Clear';
-  const weatherBackground = getWeatherAnimatedBg(weatherCondition);
-
-  if (loading) return <div className="p-4 text-white">Loading...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
-
   return (
-    <aside className="w-full max-w-xs min-w-[16rem] bg-black/20 text-white p-4 space-y-4 rounded-xl shadow-sm h-full overflow-y-auto">
+    <aside className="w-full max-w-xs min-w-[16rem] text-white p-4 rounded-xl shadow-sm h-full overflow-y-auto relative">
+      {/* Weather Section */}
       <div
-        className="rounded-2xl overflow-hidden shadow-xl relative h-52 sm:h-56 w-full text-white"
+        className="bg-black/40 backdrop-blur-sm rounded-xl p-4 mb-6 relative"
         style={{
-          backgroundImage: `url(${weatherBackground})`,
+          backgroundImage: `linear-gradient(${overlayColor}, ${overlayColor}), url(${bgImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm z-0" />
-        <div className="relative z-10 flex flex-col justify-between h-full p-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold flex items-center gap-1">
-              {location}
-              <button onClick={handleRefresh} title="Refresh">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 ml-1"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582M20 20v-5h-.581M4.934 19.066A9 9 0 105.318 5.318" />
-                </svg>
+        {/* Location Search / Display */}
+        <div className="flex items-center justify-between mb-2">
+          {editingLocation ? (
+            <div className="flex w-full">
+              <input
+                type="text"
+                placeholder="Enter location..."
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="flex-1 px-2 py-1 text-black rounded-l-md outline-none text-sm"
+              />
+              <button
+                onClick={() => fetchWeather(location)}
+                className="bg-yellow-400 text-black px-3 rounded-r-md flex items-center justify-center hover:bg-yellow-300"
+              >
+                <FiSearch />
               </button>
-            </h2>
-            <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">{weatherCondition}</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <ReactAnimatedWeather
-              icon={getWeatherIcon(weatherCondition)}
-              color="white"
-              size={48}
-              animate={true}
-            />
-            <div className="text-4xl font-bold">
-              {weather?.temp?.toFixed(0)}°C
             </div>
-          </div>
-          <p className="text-sm capitalize opacity-90">{weather?.description || 'Weather details'}</p>
-          <div className="text-xs flex items-center gap-2 mt-1">
-            <span>📍</span>
-            <span>Expect {weatherCondition.toLowerCase()} later today</span>
-          </div>
-          <button
-            className="mt-1 text-[11px] underline text-white/90 hover:text-white"
-            onClick={() => window.open(`https://www.msn.com/en-in/weather/forecast/in-${location.toLowerCase()}`, '_blank')}
-          >
-            See full forecast →
-          </button>
+          ) : (
+            <button
+              onClick={() => setEditingLocation(true)}
+              className="flex items-center gap-1 text-sm font-medium text-white"
+            >
+              {weatherData ? weatherData.location : 'Set Location'}
+              <FiChevronDown className="text-xs" />
+            </button>
+          )}
         </div>
+
+        {/* Loading / Error */}
+        {weatherError && <p className="text-red-300 mb-3 text-xs">{weatherError}</p>}
+        {weatherLoading && (
+          <div className="text-center mb-3">
+            <div className="animate-spin h-6 w-6 border-4 border-white border-t-transparent rounded-full mx-auto"></div>
+            <p className="mt-1 text-xs">Loading weather...</p>
+          </div>
+        )}
+
+        {/* Weather Info */}
+        {weatherData && !weatherLoading && (
+          <>
+            {/* Current Weather */}
+            <div className="flex items-center gap-4 mt-2">
+              <span style={{ ...glowingEmojiStyle, fontSize: 72 }}>
+                {getWeatherEmoji(weatherData.currentWeather.description)}
+              </span>
+              <div>
+                <h2 className="text-4xl font-semibold">
+                  {weatherData.currentWeather.temperature.toFixed(0)}°C
+                </h2>
+                <p className="text-xs capitalize">
+                  {weatherData.currentWeather.description}{' '}
+                  <span style={{ ...glowingEmojiStyle, fontSize: 18 }}>
+                    {getWeatherEmoji(weatherData.currentWeather.description)}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            {/* Rainy Days Message */}
+            {getRainyDaysMessage(weatherData.forecast) && (
+              <div className="bg-blue-600 backdrop-blur-sm text-[11px] rounded-md p-2 mb-3 flex items-center gap-1 border border-white/20 mt-4">
+                <span style={{ ...glowingEmojiStyle, fontSize: 16 }}>🌧</span>
+                <span>{getRainyDaysMessage(weatherData.forecast)}</span>
+              </div>
+            )}
+
+            {/* Forecast */}
+            <div className="grid grid-cols-5 gap-2 mt-3">
+              {weatherData.forecast.slice(0, 5).map((day) => (
+                <div
+                  key={day.date}
+                  className="bg-blue-400 rounded-lg p-2 text-center border border-white/10"
+                >
+                  <p className="text-xs font-medium">
+                    {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short' })}
+                  </p>
+                  <span style={{ ...glowingEmojiStyle, fontSize: 22 }}>
+                    {getWeatherEmoji(day.description)}
+                  </span>
+                  <p className="text-xs mt-1">
+                    {day.temp_max.toFixed(0)}° / {day.temp_min.toFixed(0)}°
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Hourly Forecast */}
+            {weatherData.hourlyForecast && (
+              <>
+                <p className="text-xs mt-4 mb-2 font-semibold">Next Hours</p>
+                <div className="grid grid-cols-5 gap-2">
+                  {weatherData.hourlyForecast.slice(0, 10).map((hour, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-white/15 rounded-md p-2 text-center border border-white/10"
+                    >
+                      <p className="text-[10px] font-semibold">
+                        {new Date(hour.time).toLocaleTimeString('en-US', {
+                          hour: 'numeric',
+                          hour12: true,
+                        })}
+                      </p>
+                      <span style={{ ...glowingEmojiStyle, fontSize: 32 }}>
+                        {getWeatherEmoji(hour.description)}
+                      </span>
+                      <p className="mt-1 text-[10px] font-bold">{hour.temp.toFixed(0)}°</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            <div className="text-center mb-3 mt-3 text-xl">
+              <button
+                className="mt-1 text-[14px] underline text-white/90 hover:text-white"
+                onClick={() =>
+                  window.open(
+                    `https://www.msn.com/en-in/weather/forecast/in-${location.toLowerCase()}`,
+                    '_blank'
+                  )
+                }
+              >
+                See full forecast →
+              </button>
+            </div>
+          </>
+        )}
       </div>
 
+      {/* Market Section */}
       <div className="bg-[#575656] rounded-xl p-4 shadow-md">
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-base font-semibold">Market</h3>
           <Icon name="MoreVertical" size={14} className="text-white/70" />
         </div>
-        <div className="space-y-3">
-          {market?.slice(0, 6).map((item) => {
-            const isPositive = Number(item.changePct) >= 0;
-            return (
-              <div
-                key={item.symbol}
-                className="flex justify-between items-center p-3 bg-[#353434] rounded-lg"
-              >
-                <div>
-                  <h4 className="text-sm font-semibold">{item.name}</h4>
-                  <p className="text-xs text-gray-400">{item.symbol}</p>
+
+        {marketError && <p className="text-red-400 mb-2 text-xs">{marketError}</p>}
+        {marketLoading ? (
+          <div className="text-center text-sm text-white">Loading market data...</div>
+        ) : (
+          <div className="space-y-3">
+            {market.slice(0, 6).map((item) => {
+              const isPositive = Number(item.changePct) >= 0;
+              return (
+                <div
+                  key={item.symbol}
+                  className="flex justify-between items-center p-3 bg-[#353434] rounded-lg"
+                >
+                  <div>
+                    <h4 className="text-sm font-semibold">{item.name}</h4>
+                    <p className="text-xs text-gray-400">{item.symbol}</p>
+                  </div>
+                  <div className="text-right">
+                    <p
+                      className={`text-sm font-semibold ${
+                        isPositive ? 'text-green-500' : 'text-red-500'
+                      }`}
+                    >
+                      {Number(item.changePct).toFixed(2)}%
+                    </p>
+                    <p className="text-xs text-gray-400">₹{Number(item.price).toFixed(2)}</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className={`text-sm font-semibold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-                    {Number(item.changePct).toFixed(2)}%
-                  </p>
-                  <p className="text-xs text-gray-400">₹{Number(item.price).toFixed(2)}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
+
         <button
           className="w-full mt-4 text-sm text-white hover:underline text-center"
           onClick={() => window.open('https://finance.yahoo.com/', '_blank')}
@@ -414,215 +361,3 @@ const TrendingSidebar = ({ selectedLocation = 'Vellore', onToggle, onLocationCha
 };
 
 export default TrendingSidebar;
-
-
-// import React, { useState, useEffect } from 'react';
-// import axios from 'axios';
-// import Icon from '../../../components/AppIcon';
-// import ReactAnimatedWeather from 'react-animated-weather';
-
-// const URL = import.meta.env.VITE_API_BASE_URL;
-
-// const TrendingSidebar = ({ selectedLocation = 'Vellore' }) => {
-//   const [weather, setWeather] = useState(null);
-//   const [market, setMarket] = useState([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(null);
-//   const [location, setLocation] = useState(selectedLocation);
-
-//   const token = localStorage.getItem('token');
-
-//   const getWeatherIcon = (condition) => {
-//     switch (condition?.toLowerCase()) {
-//       case 'clear': return 'CLEAR_DAY';
-//       case 'clouds': return 'CLOUDY';
-//       case 'rain':
-//       case 'thunderstorm': return 'RAIN';
-//       case 'snow': return 'SNOW';
-//       case 'mist':
-//       case 'haze':
-//       case 'fog': return 'FOG';
-//       default: return 'PARTLY_CLOUDY_DAY';
-//     }
-//   };
-
-//   const getWeatherAnimatedBg = (condition) => {
-//     switch (condition?.toLowerCase()) {
-//       case 'clear': return '/assets/weather/animated/clear-sky.gif';
-//       case 'clouds': return '/assets/weather/animated/cloudy.gif';
-//       case 'rain': return '/assets/weather/animated/rain.gif';
-//       case 'thunderstorm': return '/assets/weather/animated/thunderstorm.gif';
-//       case 'snow': return '/assets/weather/animated/snow.gif';
-//       case 'mist':
-//       case 'haze':
-//       case 'fog': return '/assets/weather/animated/fog.gif';
-//       default: return '/assets/weather/animated/default.gif';
-//     }
-//   };
-
-//   const fetchWeatherByCity = async (city) => {
-//     try {
-//       const res = await axios.get(`${URL}/external-apis/weather`, {
-//         params: { city },
-//       });
-//       setWeather(res.data);
-//       setLocation(res.data.city);
-//     } catch {
-//       setError('Failed to fetch weather');
-//     }
-//   };
-
-//   const fetchWeatherByLocation = async (lat, lon) => {
-//     try {
-//       const locRes = await axios.get(`${URL}/external-apis/location`, {
-//         params: { lat, lon },
-//       });
-
-//       const address = locRes.data.location.address || {};
-//       const city = address.city || address.town || address.village || 'Vellore';
-
-//       await fetchWeatherByCity(city);
-//     } catch {
-//       await fetchWeatherByCity('Vellore');
-//     }
-//   };
-
-//   const fetchMarket = async () => {
-//     try {
-//       const res = await axios.get(`${URL}/external-apis/market`, {
-//         headers: { Authorization: `Bearer ${token}` },
-//       });
-//       setMarket(res.data.market || []);
-//     } catch {
-//       setMarket([
-//         { symbol: 'N/A', name: 'Sample Stock', price: 100, changePct: 0.5 }
-//       ]);
-//     }
-//   };
-
-//   const fetchData = async () => {
-//     try {
-//       setLoading(true);
-//       if (navigator.geolocation) {
-//         navigator.geolocation.getCurrentPosition(
-//           async (position) => {
-//             const { latitude, longitude } = position.coords;
-//             await fetchWeatherByLocation(latitude, longitude);
-//           },
-//           async () => await fetchWeatherByCity('Vellore')
-//         );
-//       } else {
-//         await fetchWeatherByCity('Vellore');
-//       }
-//       await fetchMarket();
-//       setLoading(false);
-//     } catch (err) {
-//       setError('Something went wrong');
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => {
-//     fetchData();
-//   }, []);
-
-//   const handleRefresh = () => fetchData();
-
-//   const weatherCondition = weather?.condition || 'Clear';
-//   const weatherBackground = getWeatherAnimatedBg(weatherCondition);
-
-//   if (loading) return <div className="p-4 text-white">Loading...</div>;
-//   if (error) return <div className="p-4 text-red-500">{error}</div>;
-
-//   return (
-//     <aside className="w-full max-w-xs min-w-[16rem] bg-black/20 text-white p-4 space-y-4 rounded-xl shadow-sm h-full overflow-y-auto">
-
-//       {/* WEATHER CARD */}
-//       <div
-//         className="rounded-2xl overflow-hidden shadow-xl relative h-52 sm:h-56 w-full text-white"
-//         style={{
-//           backgroundImage: `url(${weatherBackground})`,
-//           backgroundSize: 'cover',
-//           backgroundPosition: 'center',
-//         }}
-//       >
-//         <div className="absolute inset-0 bg-black/30 backdrop-blur-sm z-0" />
-//         <div className="relative z-10 flex flex-col justify-between h-full p-4">
-//           <div className="flex items-center justify-between">
-//             <h2 className="text-lg font-semibold flex items-center gap-1">
-//               {location}
-//               <button onClick={handleRefresh} title="Refresh">
-//                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-//                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582M20 20v-5h-.581M4.934 19.066A9 9 0 105.318 5.318" />
-//                 </svg>
-//               </button>
-//             </h2>
-//             <span className="text-xs bg-white/20 px-2 py-0.5 rounded-full">
-//               {weatherCondition}
-//             </span>
-//           </div>
-//           <div className="flex items-center gap-3">
-//             <ReactAnimatedWeather
-//               icon={getWeatherIcon(weatherCondition)}
-//               color="white"
-//               size={48}
-//               animate={true}
-//             />
-//             <div className="text-4xl font-bold">
-//               {weather?.temp?.toFixed(0)}°C
-//             </div>
-//           </div>
-//           <p className="text-sm capitalize opacity-90">{weather?.description}</p>
-//           <div className="text-xs flex items-center gap-2 mt-1">
-//             <span>📍</span>
-//             <span>Expect {weatherCondition.toLowerCase()} later today</span>
-//           </div>
-//           <button
-//             className="mt-1 text-[11px] underline text-white/90 hover:text-white"
-//             onClick={() => window.open(`https://www.msn.com/en-in/weather/forecast/in-${location.toLowerCase()}`, '_blank')}
-//           >
-//             See full forecast →
-//           </button>
-//         </div>
-//       </div>
-
-//       {/* MARKET CARD */}
-//       <div className="bg-[#575656] rounded-xl p-4 shadow-md">
-//         <div className="flex items-center justify-between mb-3">
-//           <h3 className="text-base font-semibold">Market</h3>
-//           <Icon name="MoreVertical" size={14} className="text-white/70" />
-//         </div>
-//         <div className="space-y-3">
-//           {market?.slice(0, 6).map((item) => {
-//             const isPositive = Number(item.changePct) >= 0;
-//             return (
-//               <div
-//                 key={item.symbol}
-//                 className="flex justify-between items-center p-3 bg-[#353434] rounded-lg"
-//               >
-//                 <div>
-//                   <h4 className="text-sm font-semibold">{item.name}</h4>
-//                   <p className="text-xs text-gray-400">{item.symbol}</p>
-//                 </div>
-//                 <div className="text-right">
-//                   <p className={`text-sm font-semibold ${isPositive ? 'text-green-500' : 'text-red-500'}`}>
-//                     {Number(item.changePct).toFixed(2)}%
-//                   </p>
-//                   <p className="text-xs text-gray-400">₹{Number(item.price).toFixed(2)}</p>
-//                 </div>
-//               </div>
-//             );
-//           })}
-//         </div>
-//         <button
-//           className="w-full mt-4 text-sm text-white hover:underline text-center"
-//           onClick={() => window.open('https://finance.yahoo.com/', '_blank')}
-//         >
-//           See watchlist suggestions
-//         </button>
-//       </div>
-//     </aside>
-//   );
-// };
-
-// export default TrendingSidebar;
